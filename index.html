@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Conteo Cíclico de Inventario | Marathon Sports Sede Atocongo</title>
+  <meta name="description" content="Sistema de Conteo Cíclico de Inventario - Caso Marathon Atocongo © 2026. Módulo Retail Deportivo Optimizado para Piso de Venta y Almacén.">
+  <meta name="author" content="Joseph Aaron Churampi Quispe, Jose Armando Tunqui Puelles">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Estilos del Sistema -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Flash visual para lecturas de escáner -->
+  <div id="scan-flash-overlay" class="scan-flash-overlay"></div>
+
+  <!-- ====================================================================
+       PORTAL DE AUTENTICACIÓN INICIAL OBLIGATORIO (SPRING SECURITY 6)
+       ==================================================================== -->
+  <div id="login-portal" class="login-portal-screen">
+    <div class="login-portal-card">
+      
+      <!-- Cabecera de Marca -->
+      <div class="login-brand-header">
+        <div class="login-brand-icon">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <div class="login-brand-texts">
+          <div class="login-brand-title">MARATHON SPORTS</div>
+          <div class="login-brand-subtitle">SEDE ATOCONGO • INVENTARIO CÍCLICO</div>
+        </div>
+      </div>
+
+      <div class="login-welcome-title">Control de Acceso y Seguridad</div>
+      <div class="login-welcome-desc">
+        Autenticación obligatoria con <strong>Spring Security 6</strong> y algoritmo <strong>BCrypt</strong>. Ingrese sus credenciales corporativas:
+      </div>
+
+      <!-- Alerta de Error en Login -->
+      <div id="login-error-alert" class="login-error-alert" style="display: none;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span id="login-error-msg">Credenciales incorrectas. Verifique usuario o contraseña.</span>
+      </div>
+
+      <!-- Formulario de Inicio de Sesión -->
+      <form id="login-form" onsubmit="procesarLogin(event)" autocomplete="off">
+        <div class="login-field-group">
+          <label class="login-field-label" for="login-username-input">Usuario Corporativo</label>
+          <div class="login-input-wrap">
+            <i class="bi bi-person-fill login-input-icon"></i>
+            <input type="text" id="login-username-input" class="login-text-input" placeholder="ej. auditor, operario, supervisor" required />
+          </div>
+        </div>
+
+        <div class="login-field-group">
+          <label class="login-field-label" for="login-password-input">Contraseña (BCrypt)</label>
+          <div class="login-input-wrap">
+            <i class="bi bi-shield-lock-fill login-input-icon"></i>
+            <input type="password" id="login-password-input" class="login-text-input" placeholder="••••••••" required />
+            <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility()" title="Mostrar u ocultar contraseña">
+              <i class="bi bi-eye-fill" id="pwd-toggle-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="btn-login-primary">
+          <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión con Spring Security
+        </button>
+      </form>
+
+      <!-- Divisor -->
+      <div class="login-divider">
+        <span>O ACCEDE CON CUENTAS DEMOSTRATIVAS PRECONFIGURADAS</span>
+      </div>
+
+      <!-- Cuentas Rápidas Demo para Evaluación del Docente/Cliente -->
+      <div class="login-quick-roles">
+        <div class="quick-role-card" onclick="loginRapidoDemo('operario', 'operario123')">
+          <div class="quick-role-avatar" style="background: #0284C7;">JT</div>
+          <div class="quick-role-info">
+            <div class="quick-role-name">Jose Armando Tunqui</div>
+            <div class="quick-role-meta">ROLE_OPERARIO • Conteo Escáner y Pre-Venta</div>
+          </div>
+          <span class="quick-role-badge badge-operario">Operario</span>
+        </div>
+
+        <div class="quick-role-card" onclick="loginRapidoDemo('auditor', 'auditor123')">
+          <div class="quick-role-avatar" style="background: #16A34A;">JC</div>
+          <div class="quick-role-info">
+            <div class="quick-role-name">Joseph Aaron Churampi</div>
+            <div class="quick-role-meta">ROLE_AUDITOR • Conciliación, Excel POI y Actas PDF</div>
+          </div>
+          <span class="quick-role-badge badge-auditor">Auditor</span>
+        </div>
+
+        <div class="quick-role-card" onclick="loginRapidoDemo('supervisor', 'admin123')">
+          <div class="quick-role-avatar" style="background: #DC2626;">AC</div>
+          <div class="quick-role-info">
+            <div class="quick-role-name">Anita Condo López</div>
+            <div class="quick-role-meta">ROLE_SUPERVISOR • Aprobación de Mermas y Ajustes SAP</div>
+          </div>
+          <span class="quick-role-badge badge-supervisor">Supervisora</span>
+        </div>
+      </div>
+
+      <!-- Footer del Portal de Login -->
+      <div class="login-card-footer">
+        <span>Caso de Estudio: Marathon Sports Sede Atocongo • UTP 2026</span>
+        <span>Curso Integrador I: Sistemas - Software</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HEADER PRINCIPAL -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- Marca Marathon Sede Atocongo -->
+      <div class="brand-box" onclick="document.querySelector('[data-target=\'view-auditoria\']').click()">
+        <div class="brand-icon">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <div class="brand-info">
+          <span class="brand-title">MARATHON</span>
+          <span class="brand-sub">Sede Atocongo</span>
+        </div>
+      </div>
+
+      <!-- Navegación Central (5 Prototipos Validados) -->
+      <nav class="header-nav">
+        <button class="nav-tab-btn" data-target="view-escaner" id="tab-btn-escaner">
+          Conteo Escáner
+        </button>
+        <button class="nav-tab-btn" data-target="view-preventa" id="tab-btn-preventa">
+          Consulta Pre-Venta
+        </button>
+        <button class="nav-tab-btn active" data-target="view-auditoria" id="tab-btn-auditoria">
+          Validación & Auditoría <span class="nav-alert-badge" id="nav-discrepancy-badge">4</span>
+        </button>
+        <button class="nav-tab-btn" data-target="view-trazabilidad" id="tab-btn-trazabilidad">
+          Trazabilidad SKU
+        </button>
+        <button class="nav-tab-btn" data-target="view-configuracion" id="tab-btn-configuracion">
+          Configuración
+        </button>
+        <a href="modelos-datos.html" class="nav-tab-btn" id="tab-btn-modelos" target="_blank" title="Ver Diagramas de Modelos de Datos (Conceptual, Lógico y Físico)" style="color: var(--brand-red); font-weight: 600;">
+          <i class="bi bi-diagram-3-fill"></i> Modelos de Datos
+        </a>
+      </nav>
+
+      <!-- Controles de Estado, Reset y Perfil de Usuario -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-reseed-demo" class="btn-subtle-reseed" onclick="reiniciarDatosDemo()" title="Restaurar stock y conteos a los valores iniciales de prueba">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset Demo
+        </button>
+
+        <!-- Perfil de Usuario con Spring Security -->
+        <div class="user-profile-box" onclick="abrirModalSeguridad()" style="cursor: pointer;" title="Configuración de Sesión y Roles (Spring Security 6)">
+          <div class="user-meta">
+            <span class="user-name" id="header-user-name">No autenticado</span>
+            <span class="user-role" id="header-user-role"><i class="bi bi-shield-lock-fill" style="color: #94A3B8;"></i> Desconectado</span>
+          </div>
+          <div class="user-avatar" id="header-user-avatar">?</div>
+        </div>
+
+        <!-- Botón de Logout -->
+        <button id="btn-header-logout" class="btn-subtle-logout" onclick="cerrarSesion()" title="Cerrar sesión actual en Spring Security">
+          <i class="bi bi-box-arrow-right"></i> Salir
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-wrapper">
+
+    <!-- ====================================================================
+         VISTA 1: VALIDACIÓN & AUDITORÍA (Auditoría de Discrepancias)
+         ==================================================================== -->
+    <section id="view-auditoria" class="tab-content-view active">
+      <div class="page-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+        <div class="page-title-box">
+          <div class="page-title-line">
+            <h1 class="page-title">Auditoría de Discrepancias</h1>
+            <span class="pill-badge pill-outline-danger">PENDIENTES DE APROBACIÓN</span>
+          </div>
+          <p class="page-subtitle">Revisa diferencias críticas, ingresa causas investigadas y confirma ajustes de inventario</p>
+        </div>
+
+        <!-- Botones de Acción: Librerías Apache POI, OpenPDF y Spring Security -->
+        <div class="page-actions-box" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button id="btn-nueva-auditoria" class="btn-crear-auditoria" onclick="abrirModalNuevaAuditoria()" title="Registrar una nueva discrepancia detectada en conteo">
+            <i class="bi bi-plus-circle-fill"></i> + Registrar Auditoría
+          </button>
+          <button id="btn-export-excel" class="btn-action-report btn-excel" onclick="descargarExcelSeguro('ALL')" title="Exportar Reporte Completo a Excel con Apache POI">
+            <i class="bi bi-file-earmark-excel-fill"></i> Exportar Excel (.xlsx)
+          </button>
+          <button id="btn-export-pdf" class="btn-action-report btn-pdf" onclick="descargarPdfSeguro('ALL')" title="Generar Acta Oficial de Auditoría en PDF con OpenPDF">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Acta Oficial PDF
+          </button>
+          <button id="btn-security" class="btn-action-report btn-security" onclick="abrirModalSeguridad()" title="Gestión de Seguridad y Roles con Spring Security 6">
+            <i class="bi bi-shield-lock-fill"></i> Spring Security
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner Explicativo: Función del Módulo y Flujo Operativo de Auditoría -->
+      <div class="audit-workflow-guide-box">
+        <div class="workflow-header">
+          <div class="workflow-title-wrap">
+            <div class="workflow-badge-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <div class="workflow-title">¿Qué función cumple la Validación & Auditoría en Marathon Sports?</div>
+              <div class="workflow-subtitle">Garantiza el <strong>IRA (Exactitud de Registro de Inventario)</strong> conciliando el Conteo Físico en tienda vs el Stock Teórico SAP MB52.</div>
+            </div>
+          </div>
+          <button type="button" class="btn-crear-auditoria" onclick="abrirModalNuevaAuditoria()" style="padding: 7px 14px; font-size: 0.8rem; background: #E30613;">
+            <i class="bi bi-plus-lg"></i> + Iniciar Auditoría de SKU
+          </button>
+        </div>
+
+        <div class="workflow-steps-grid">
+          <div class="workflow-step-card">
+            <span class="workflow-step-num">1</span>
+            <div class="workflow-step-header">
+              <i class="bi bi-upc-scan"></i>
+              <span>Detección Cíclica</span>
+            </div>
+            <div class="workflow-step-desc">
+              Conteo ciego de productos mediante escáneres RF en Piso de Venta, Almacén y Vitrinas sin sesgo previo.
+            </div>
+            <span class="workflow-step-actor"><i class="bi bi-person"></i> Operario de Piso</span>
+          </div>
+
+          <div class="workflow-step-card">
+            <span class="workflow-step-num">2</span>
+            <div class="workflow-step-header">
+              <i class="bi bi-search"></i>
+              <span>Causa & Evidencia</span>
+            </div>
+            <div class="workflow-step-desc">
+              Revisión de cámaras CCTV, mermas físicas, cruce de tallas o comprobantes de caja para tipificar el faltante o sobrante.
+            </div>
+            <span class="workflow-step-actor"><i class="bi bi-shield-shaded"></i> Auditor de Control</span>
+          </div>
+
+          <div class="workflow-step-card">
+            <span class="workflow-step-num">3</span>
+            <div class="workflow-step-header">
+              <i class="bi bi-check2-circle"></i>
+              <span>Aprobación Jefatura</span>
+            </div>
+            <div class="workflow-step-desc">
+              La Jefa de Tienda valida la causal justificada y autoriza el ajuste definitivo en el maestro de materiales SAP.
+            </div>
+            <span class="workflow-step-actor"><i class="bi bi-award"></i> Supervisora / Jefa</span>
+          </div>
+
+          <div class="workflow-step-card">
+            <span class="workflow-step-num">4</span>
+            <div class="workflow-step-header">
+              <i class="bi bi-file-earmark-lock2-fill"></i>
+              <span>Actas POI & PDF</span>
+            </div>
+            <div class="workflow-step-desc">
+              Generación legal de matrices de conciliación en Excel (.xlsx) con Apache POI y Acta Oficial en PDF con OpenPDF.
+            </div>
+            <span class="workflow-step-actor"><i class="bi bi-file-code"></i> Apache POI & OpenPDF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen Ejecutivo de Métricas IRA % (Exactitud de Registro de Inventario) -->
+      <div class="kpi-summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+        <div class="kpi-metric-card" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 18px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Exactitud de Inventario (IRA)</div>
+          <div style="font-size: 1.6rem; font-weight: 900; color: #16A34A; margin-top: 4px;" id="kpi-ira-val">96.2%</div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Meta corporativa: >= 95.0%</div>
+        </div>
+
+        <div class="kpi-metric-card" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 18px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Stock Teórico SAP</div>
+          <div style="font-size: 1.6rem; font-weight: 900; color: var(--text-main); margin-top: 4px;" id="kpi-stock-sap">382 <span style="font-size: 0.9rem; font-weight: 500;">u.</span></div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">22 SKUs auditados en tienda</div>
+        </div>
+
+        <div class="kpi-metric-card" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 18px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Conteo Físico Real</div>
+          <div style="font-size: 1.6rem; font-weight: 900; color: var(--brand-blue); margin-top: 4px;" id="kpi-stock-fisico">377 <span style="font-size: 0.9rem; font-weight: 500;">u.</span></div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Piso de venta + Almacén + Vitrina</div>
+        </div>
+
+        <div class="kpi-metric-card" style="background: #FFFFFF; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 14px 18px; box-shadow: var(--shadow-sm);">
+          <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Impacto Económico Mermas</div>
+          <div style="font-size: 1.6rem; font-weight: 900; color: var(--color-danger); margin-top: 4px;" id="kpi-impacto-merma">S/ -560.00</div>
+          <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">Costo de faltantes a investigar</div>
+        </div>
+      </div>
+
+      <!-- BANDEJA DE ALERTAS INTELIGENTES DE DISCREPANCIAS (AUTO-DETECCIÓN) -->
+      <div class="discrepancy-alerts-box" id="discrepancy-alerts-box">
+        <div class="discrepancy-alerts-top">
+          <div>
+            <div class="discrepancy-alerts-title">
+              <i class="bi bi-bell-fill"></i> Bandeja de Alertas de Discrepancias Detectadas
+              <span class="pill-badge pill-outline-danger" id="badge-total-alertas" style="margin-left: 6px;">4 Diferencias Activas</span>
+            </div>
+            <div style="font-size: 0.76rem; color: #64748B; margin-top: 2px;">
+              El sistema comparó automáticamente el Stock SAP vs Conteo Físico. <strong>No necesitas revisar uno por uno:</strong> haz clic en <em>"Auditar con 1 Clic"</em> para tipificar la discrepancia al instante.
+            </div>
+          </div>
+          <button type="button" class="btn-subtle-reseed" onclick="cargarAlertasDiscrepancias()" title="Re-escanear inventario en busca de nuevas diferencias" style="padding: 6px 12px; font-size: 0.78rem;">
+            <i class="bi bi-arrow-clockwise"></i> Re-escanear Discrepancias
+          </button>
+        </div>
+
+        <div class="discrepancy-alerts-grid" id="discrepancy-alerts-grid">
+          <!-- Tarjetas de alertas generadas dinámicamente -->
+        </div>
+      </div>
+
+      <div class="audit-stats-header" style="flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <h3 class="card-title-lg" style="margin-bottom: 0;">Auditorías Abiertas para Hoy</h3>
+          <span class="pill-badge pill-outline-danger" id="badge-faltantes-criticos" style="background:#FEE2E2; border:none;">3 Faltantes Críticos</span>
+          <span class="pill-badge pill-amber" id="badge-sobrantes-analisis" style="border:none;">1 Sobrante Bajo Análisis</span>
+        </div>
+
+        <!-- Filtro en tiempo real para auditorías -->
+        <div style="position: relative;">
+          <i class="bi bi-search" style="position: absolute; left: 10px; top: 8px; font-size: 0.8rem; color: var(--text-muted);"></i>
+          <input type="text" id="audit-filter-input" placeholder="Filtrar por SKU o causal..." style="padding: 6px 12px 6px 28px; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: 0.8rem; outline: none; width: 220px;" onkeyup="filtrarTablaAuditoria(this.value)" />
+        </div>
+      </div>
+
+      <div class="audit-table-wrap">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th style="width: 110px;">LÍNEA</th>
+              <th>SKU / DESCRIPCIÓN</th>
+              <th style="width: 140px;">SAP vs FIS</th>
+              <th style="width: 180px;">CAUSA INVESTIGADA</th>
+              <th>EVIDENCIA / NOTA</th>
+              <th style="width: 150px; text-align: center;">ACCIONES JEFE</th>
+            </tr>
+          </thead>
+          <tbody id="audit-table-body">
+            <!-- Renderizado dinámico desde backend -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 2: TRAZABILIDAD SKU (Trazabilidad de Movimientos SKU)
+         ==================================================================== -->
+    <section id="view-trazabilidad" class="tab-content-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <div class="page-title-line">
+            <h1 class="page-title">Trazabilidad de Movimientos SKU</h1>
+            <span class="pill-badge pill-blue">HISTORIAL SAP VS FÍSICO</span>
+          </div>
+          <p class="page-subtitle">Auditoría completa de discrepancias detectadas y registros de movimientos históricos de stock</p>
+        </div>
+      </div>
+
+      <!-- Selector y Búsqueda Dinámica de SKU para Trazabilidad (22 Productos) -->
+      <div class="traceability-sku-bar">
+        <div class="traceability-select-row">
+          <label class="traceability-label" for="trazabilidad-search-input">
+            <i class="bi bi-search" style="color: var(--brand-blue);"></i> Búsqueda Dinámica:
+          </label>
+          <div class="search-input-box-relative" style="flex: 1; min-width: 280px;">
+            <input type="text" id="trazabilidad-search-input" class="search-input-field" placeholder="Escribe nombre o SKU (ej: vapor, predator, camiseta, CAL-NIK, 775...)" oninput="buscarTrazabilidadEnVivo(this.value)" autocomplete="off" style="width: 100%; padding: 9px 34px 9px 34px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 0.88rem;" />
+            <i class="bi bi-upc-scan" style="position: absolute; left: 11px; top: 11px; color: #94A3B8; font-size: 0.95rem;"></i>
+            <button type="button" id="btn-clear-tr-search" style="position: absolute; right: 10px; top: 8px; background: none; border: none; color: #94A3B8; cursor: pointer; font-size: 0.95rem;" onclick="limpiarBusquedaTrazabilidad()" title="Limpiar">
+              <i class="bi bi-x-circle-fill"></i>
+            </button>
+            <!-- Dropdown de sugerencias de Trazabilidad -->
+            <div id="tr-search-suggestions" class="search-suggestions-dropdown"></div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.78rem; color: #64748B; font-weight: 600;">O elegir del catálogo:</span>
+            <select id="trazabilidad-sku-select" class="traceability-sku-select" onchange="cambiarSkuTrazabilidad(this.value)" style="min-width: 240px;">
+              <optgroup label="Calzado Deportivo (Línea Día 9)">
+                <option value="CAL-NIK-001" selected>CAL-NIK-001 • Nike Mercurial Vapor 15 Club (Dif: -2)</option>
+                <option value="CAL-NIK-002">CAL-NIK-002 • Nike Air Max Excee Running (Dif: 0)</option>
+                <option value="CAL-ADI-003">CAL-ADI-003 • Adidas Predator Accuracy.3 (Dif: -1)</option>
+                <option value="CAL-ADI-004">CAL-ADI-004 • Adidas Grand Court Base 2.0 (Dif: 0)</option>
+                <option value="CAL-PUM-005">CAL-PUM-005 • Puma Future Match TT (Dif: -1)</option>
+                <option value="CAL-PUM-006">CAL-PUM-006 • Puma Smash V2 L Casual (Dif: 0)</option>
+                <option value="CAL-UND-007">CAL-UND-007 • UA Charged Assert 10 (Dif: 0)</option>
+                <option value="CAL-MAR-008">CAL-MAR-008 • Marathon Training Pro Flex (Dif: +1)</option>
+              </optgroup>
+              <optgroup label="Ropa & Textil (Línea Día 19)">
+                <option value="ROP-MAR-101">ROP-MAR-101 • Camiseta Selección Peruana Local</option>
+                <option value="ROP-MAR-102">ROP-MAR-102 • Camiseta Selección Peruana Visitante</option>
+                <option value="ROP-MAR-103">ROP-MAR-103 • Camiseta Universitario Oficial (Dif: -1)</option>
+                <option value="ROP-NIK-104">ROP-NIK-104 • Camiseta Alianza Lima Stadium</option>
+                <option value="ROP-ADI-105">ROP-ADI-105 • Camiseta Sporting Cristal Oficial</option>
+                <option value="ROP-NIK-106">ROP-NIK-106 • Pantalón Buzo Nike Dri-FIT</option>
+                <option value="ROP-ADI-107">ROP-ADI-107 • Casaca Cortaviento Adidas Tiro 24</option>
+                <option value="ROP-MAR-108">ROP-MAR-108 • Short Deportivo Marathon Pro</option>
+              </optgroup>
+              <optgroup label="Accesorios & Equipamiento (Línea Día 28)">
+                <option value="ACC-ADI-201">ACC-ADI-201 • Balón Adidas Club N°5 Oficial</option>
+                <option value="ACC-PUM-202">ACC-PUM-202 • Balón Puma Orbita LaLiga 1</option>
+                <option value="ACC-NIK-203">ACC-NIK-203 • Mochila Nike Brasilia 9.5</option>
+                <option value="ACC-MAR-204">ACC-MAR-204 • Canilleras Marathon Pro Shield</option>
+                <option value="ACC-ADI-205">ACC-ADI-205 • Guantes de Arquero Adidas Predator</option>
+                <option value="ACC-NIK-206">ACC-NIK-206 • Pack x3 Medias Deportivas Nike</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="traceability-quick-chips">
+          <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 700;">Acceso Rápido:</span>
+          <button type="button" class="chip-sku-pill active" onclick="cambiarSkuTrazabilidad('CAL-NIK-001')">Nike Vapor (-2)</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('CAL-NIK-002')">Nike Air Max (OK)</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('CAL-ADI-003')">Adidas Predator (-1)</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('CAL-MAR-008')">Marathon Flex (+1)</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('ROP-MAR-101')">Camiseta Perú</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('ROP-MAR-103')">Camiseta U (-1)</button>
+          <button type="button" class="chip-sku-pill" onclick="cambiarSkuTrazabilidad('ACC-ADI-201')">Balón Adidas</button>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Columna Izquierda: Estado de Stock Actual -->
+        <div class="white-card">
+          <div class="product-display-header">
+            <div class="product-icon-box">
+              <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="product-display-meta">
+              <span class="product-name-lg" id="tr-prod-name">Nike Mercurial Vapor 15</span>
+              <span class="product-sku-code" id="tr-prod-sku">SKU: 790123456712</span>
+              <a href="#" class="product-loc-link" id="tr-prod-sede">Sede Atocongo - Almacén A</a>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <h3 class="card-title-lg" style="margin-bottom: 14px;">Estado de Stock Actual</h3>
+
+          <div class="stock-stats-row">
+            <div class="stat-metric-box">
+              <span class="stat-metric-label">Stock Teórico SAP</span>
+              <span class="stat-metric-val" id="tr-stock-sap">14 u.</span>
+            </div>
+            <div class="stat-metric-box">
+              <span class="stat-metric-label">Conteo Físico Real</span>
+              <span class="stat-metric-val stat-val-blue" id="tr-stock-fis">12 u.</span>
+            </div>
+            <div class="stat-metric-box">
+              <span class="stat-metric-label">Diferencia</span>
+              <span class="stat-metric-val stat-val-red" id="tr-stock-diff">-2 u.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Historial de Movimientos y Ajustes -->
+        <div class="white-card">
+          <h3 class="card-title-lg">Historial de Movimientos y Ajustes</h3>
+          <div class="timeline-list" id="tr-timeline-list">
+            <!-- Timeline dinámico cargado desde backend -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 3: CONFIGURACIÓN (Configuración de Ciclo de Inventario)
+         ==================================================================== -->
+    <section id="view-configuracion" class="tab-content-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <div class="page-title-line">
+            <h1 class="page-title">Configuración de Ciclo de Inventario</h1>
+            <span class="pill-badge pill-amber">MÓDULO DE PLANIFICACIÓN</span>
+          </div>
+          <p class="page-subtitle">Establece responsables de conteo, categorías, fechas y reglas de muestreo de auditoría</p>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Columna Izquierda: Reglas del Conteo Cíclico -->
+        <div class="white-card">
+          <h3 class="card-title-lg">Reglas del Conteo Cíclico</h3>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom" for="config-frecuencia-select">Frecuencia de Conteo Cíclico</label>
+            <select class="select-custom" id="config-frecuencia-select">
+              <option value="3 Conteos Fraccionados al Mes (Días 9, 19, 29)">3 Conteos Fraccionados al Mes (Días 9, 19, 29)</option>
+              <option value="Conteo Semanal Rotativo (Días Viernes)">Conteo Semanal Rotativo (Días Viernes)</option>
+              <option value="Conteo Quincenal (Días 15 y 30)">Conteo Quincenal (Días 15 y 30)</option>
+            </select>
+          </div>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom">Líneas / Categorías de Muestreo</label>
+            <div class="pills-select-group">
+              <button type="button" class="pill-select-item" data-cat="Calzado Deportivo">Calzado Deportivo</button>
+              <button type="button" class="pill-select-item" data-cat="Ropa & Textil">Ropa & Textil</button>
+              <button type="button" class="pill-select-item" data-cat="Accesorios">Accesorios</button>
+            </div>
+          </div>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom">Regla de Muestreo</label>
+            <div class="info-note-box">
+              Filtro activo: Clasificación de productos ABC de alta rotación (Top marcas Nike, Adidas, Puma).
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Asignación de Responsables de Conteo -->
+        <div class="white-card">
+          <h3 class="card-title-lg">Asignación de Responsables de Conteo</h3>
+
+          <div class="responsible-card">
+            <div class="responsible-avatar">JT</div>
+            <div class="responsible-details">
+              <span class="responsible-name">Jose Armando Tunqui</span>
+              <span class="responsible-role">Auditor Principal Calzado</span>
+            </div>
+          </div>
+
+          <div class="responsible-card">
+            <div class="responsible-avatar" style="background-color: #0052cc;">JC</div>
+            <div class="responsible-details">
+              <span class="responsible-name">Joseph Aaron Churampi</span>
+              <span class="responsible-role">Jefe de Inventario</span>
+            </div>
+          </div>
+
+          <button class="btn-primary-blue" id="btn-guardar-config-ciclo" style="width: 100%; margin-top: 10px; padding: 12px;">
+            Guardar Configuración de Ciclo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 4: CONTEO ESCÁNER (Captura Rápida de Conteo Físico)
+         ==================================================================== -->
+    <section id="view-escaner" class="tab-content-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <div class="page-title-line">
+            <h1 class="page-title">Captura Rápida de Conteo Físico</h1>
+            <span class="pill-badge pill-blue">ESCÁNER ACTIVO</span>
+          </div>
+          <p class="page-subtitle">Registro directo desde terminales RF / Escáneres de mano en pasillos y anaqueles</p>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Columna Izquierda: Entrada y Último Producto Leído -->
+        <div style="display: flex; flex-direction: column; gap: 18px;">
+          <!-- Entrada Directa -->
+          <div class="white-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 class="card-title-lg" style="margin-bottom: 0;">Entrada Directa / Simulación de Lectura</h3>
+              <button type="button" class="btn-subtle-reseed" onclick="abrirModalEtiqueta()" title="Generar e imprimir marbete oficial de estantería con código de barras" style="padding: 4px 10px; font-size: 0.78rem;">
+                <i class="bi bi-printer-fill" style="color: var(--brand-blue);"></i> Imprimir Marbete
+              </button>
+            </div>
+            
+            <div class="barcode-input-container">
+              <i class="bi bi-upc-scan barcode-icon"></i>
+              <input type="text" id="scanner-barcode-input" class="barcode-text-input" placeholder="790123456712" value="790123456712" autocomplete="off" />
+            </div>
+
+            <div class="quick-inc-row">
+              <button type="button" class="quick-btn quick-btn-blue btn-quick-inc" data-inc="1">+1</button>
+              <button type="button" class="quick-btn quick-btn-gray btn-quick-inc" data-inc="5">+5</button>
+              <button type="button" class="quick-btn quick-btn-gray btn-quick-inc" data-inc="10">+10</button>
+              <button type="button" class="quick-btn quick-btn-gray" id="btn-scanner-ajuste-manual">Ajustar Manual</button>
+            </div>
+
+            <!-- Chips de Prueba Rápida con 1 Clic -->
+            <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 600;">SKUs Demo:</span>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('790123456712')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Air Max (790123...)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234001015')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Vapor 15 (775123...)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234002012')" style="padding: 3px 8px; font-size: 0.72rem;">Camiseta Perú (775123...)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234003019')" style="padding: 3px 8px; font-size: 0.72rem;">Balón Adidas (775123...)</button>
+            </div>
+          </div>
+
+          <!-- Último Producto Leído -->
+          <div class="white-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <span style="font-size: 0.76rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">ÚLTIMO PRODUCTO LEÍDO</span>
+              <span class="pill-badge pill-green"><i class="bi bi-check2"></i> Agregado</span>
+            </div>
+
+            <div class="product-display-header">
+              <div class="product-icon-box">
+                <i class="bi bi-box-seam-fill" style="color: var(--brand-blue); font-size: 1.4rem;"></i>
+              </div>
+              <div class="product-display-meta">
+                <span class="product-name-lg" id="last-read-name">Zapatillas Nike Air Max Excee Running</span>
+                <span class="product-sku-code" id="last-read-meta">SKU: 790123456712 • Marca: Nike • Talla: 42</span>
+                <a href="#" class="product-loc-link" id="last-read-location">Ubicación física: Pasillo A - Estante 03</a>
+              </div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <div class="stock-stats-row">
+              <div class="stat-metric-box">
+                <span class="stat-metric-label">Cantidad Registrada</span>
+                <span class="stat-metric-val" id="last-read-qty-reg">01 Unidad</span>
+              </div>
+              <div class="stat-metric-box">
+                <span class="stat-metric-label">Conteo Acumulado</span>
+                <span class="stat-metric-val stat-val-blue" id="last-read-qty-total">11 Unidades</span>
+              </div>
+              <div class="stat-metric-box">
+                <span class="stat-metric-label">Hora Registro</span>
+                <span class="stat-metric-val" id="last-read-time" style="font-size: 1.15rem;">14:32:05</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Progreso de Zona y Últimas Capturas -->
+        <div class="white-card">
+          <div class="zone-progress-top">
+            <span class="zone-progress-title">Progreso de la Zona Actual: Pasillo A</span>
+            <span class="zone-progress-pct" id="zone-pct-label">78% Completado</span>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" id="zone-progress-bar" style="width: 78%;"></div>
+          </div>
+
+          <div class="zone-progress-stats">
+            <span id="zone-skus-counted">35 SKUs Contados</span>
+            <span id="zone-skus-pending">10 SKUs Pendientes</span>
+          </div>
+
+          <div class="recent-captures-title">Últimas capturas en esta sesión:</div>
+          <div class="timeline-list" id="recent-captures-list">
+            <!-- Rellenado dinámicamente -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 5: CONSULTA PRE-VENTA (Consulta Pre-Venta de Stock)
+         ==================================================================== -->
+    <section id="view-preventa" class="tab-content-view">
+      <div class="page-header-row">
+        <div class="page-title-box">
+          <div class="page-title-line">
+            <h1 class="page-title">Consulta Pre-Venta de Stock</h1>
+            <span class="pill-badge pill-green">BÚSQUEDA EN TIEMPO REAL</span>
+          </div>
+          <p class="page-subtitle">Verifica ubicaciones exactas y disponibilidad física antes de procesar una venta rápida</p>
+        </div>
+      </div>
+
+      <!-- Barra de búsqueda superior con Autocompletado en Tiempo Real -->
+      <div class="search-bar-row">
+        <div class="search-input-box search-input-box-relative">
+          <i class="bi bi-search text-muted"></i>
+          <input type="text" id="preventa-search-input" class="search-input-field" placeholder="Buscar por SKU (CAL-NIK-001...), EAN, o nombre (Vapor, Camiseta, Balón)..." value="Nike Air Max Excee Running" autocomplete="off" oninput="buscarPreVentaEnVivo(this.value)" />
+          <button type="button" id="btn-clear-search-pv" style="background: none; border: none; color: #94A3B8; cursor: pointer; padding: 4px 8px; font-size: 1rem;" onclick="limpiarBusquedaPreVenta()" title="Limpiar búsqueda">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+
+          <!-- Dropdown flotante de sugerencias -->
+          <div id="pv-search-suggestions" class="search-suggestions-dropdown">
+            <!-- Rellenado dinámicamente con coincidencias -->
+          </div>
+        </div>
+        <button class="btn-primary-blue" id="btn-preventa-search" style="padding: 10px 24px;">
+          <i class="bi bi-search"></i> Buscar Producto
+        </button>
+      </div>
+
+      <!-- Chips de búsqueda rápida y filtros por categoría -->
+      <div style="display: flex; gap: 8px; margin-top: -12px; margin-bottom: 22px; flex-wrap: wrap; align-items: center;">
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">Atajos rápidos:</span>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="CAL-NIK-001" style="padding: 4px 10px; font-size: 0.75rem;">⚡ SKU: CAL-NIK-001</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Vapor" style="padding: 4px 10px; font-size: 0.75rem;">Nike Vapor 15</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Air Max" style="padding: 4px 10px; font-size: 0.75rem;">Nike Air Max</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Predator" style="padding: 4px 10px; font-size: 0.75rem;">Adidas Predator</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Camiseta" style="padding: 4px 10px; font-size: 0.75rem;">Camisetas de Fútbol</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Balón" style="padding: 4px 10px; font-size: 0.75rem;">Balones Oficiales</button>
+        <button type="button" class="btn-subtle-gray chip-quick-search" data-q="Guantes" style="padding: 4px 10px; font-size: 0.75rem;">Guantes Arquero</button>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Columna Izquierda: Producto y Ubicaciones Físicas -->
+        <div class="white-card">
+          <div class="product-display-header">
+            <div class="product-icon-box">
+              <i class="bi bi-tag-fill" style="color: var(--brand-blue); font-size: 1.4rem;"></i>
+            </div>
+            <div class="product-display-meta">
+              <span class="product-name-lg" id="pv-prod-name">Zapatillas Nike Air Max Excee Running</span>
+              <span class="product-sku-code" id="pv-prod-meta">EAN: 790123456712 • Marca: Nike • Color: Blanco/Azul</span>
+              <span class="product-price-tag" id="pv-prod-price">Precio: S/ 389.00</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; margin-bottom: 10px; font-size: 0.88rem; font-weight: 700; color: var(--text-main);">
+            Distribución de Ubicaciones Físicas
+          </div>
+
+          <div id="pv-locations-list">
+            <!-- Ubicaciones dinámicas -->
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Resumen de Disponibilidad y Acciones -->
+        <div class="white-card">
+          <h3 class="card-title-lg">Resumen de Disponibilidad</h3>
+
+          <div class="stock-total-highlight-card">
+            <div class="stock-total-label">STOCK TOTAL FÍSICO</div>
+            <div class="stock-total-huge" id="pv-stock-total-huge">10 Unidades</div>
+            <div class="stock-total-note" id="pv-stock-note">Coincide 100% con Teórico SAP</div>
+          </div>
+
+          <button class="btn-primary-blue" id="btn-reservar-preventa" style="width: 100%; padding: 12px; margin-top: 10px;">
+            Reservar para Pre-Venta
+          </button>
+
+          <button class="btn-outline-blue" id="btn-solicitar-auditoria-rapida" style="width: 100%; padding: 12px; margin-top: 10px;">
+            Solicitar Auditoría Rápida
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <span>Sistema de Conteo Cíclico de Inventario • Caso Marathon Atocongo © 2026</span>
+      <span>Módulo Retail Deportivo Optimizado para Piso de Venta y Almacén</span>
+    </div>
+  </footer>
+
+  <!-- MODAL SPRING SECURITY (Autenticación y Roles RBAC) -->
+  <div id="security-modal" class="security-modal-overlay" onclick="if(event.target===this)cerrarModalSeguridad()">
+    <div class="security-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="background: #EEF2FF; color: #4F46E5; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main);">Módulo Spring Security 6</h3>
+            <span style="font-size: 0.75rem; color: #16A34A; font-weight: 600;">● Algoritmo BCrypt Activo • Roles Jerárquicos</span>
+          </div>
+        </div>
+        <button onclick="cerrarModalSeguridad()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
+        Elige un usuario para autenticarte y probar los niveles de acceso del sistema:
+      </p>
+
+      <div id="roles-container">
+        <div class="role-chip" id="chip-operario" onclick="autenticarComo('operario', 'operario123')">
+          <div>
+            <strong style="font-size: 0.88rem; color: var(--text-main); display: block;">Jose Armando Tunqui</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ROLE_OPERARIO • Conteo y Escáner en Piso de Venta</span>
+          </div>
+          <span class="pill-badge" style="background: #E0F2FE; color: #0369A1; font-size: 0.75rem;">Operario</span>
+        </div>
+
+        <div class="role-chip selected" id="chip-auditor" onclick="autenticarComo('auditor', 'auditor123')">
+          <div>
+            <strong style="font-size: 0.88rem; color: var(--text-main); display: block;">Joseph Aaron Churampi</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ROLE_AUDITOR • Conciliación e Informes Apache POI & OpenPDF</span>
+          </div>
+          <span class="pill-badge" style="background: #DCFCE7; color: #15803D; font-size: 0.75rem;">Auditor</span>
+        </div>
+
+        <div class="role-chip" id="chip-supervisor" onclick="autenticarComo('supervisor', 'admin123')">
+          <div>
+            <strong style="font-size: 0.88rem; color: var(--text-main); display: block;">Anita Condo López</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">ROLE_SUPERVISOR • Aprobación Definitiva de Mermas SAP</span>
+          </div>
+          <span class="pill-badge" style="background: #FEE2E2; color: #B91C1C; font-size: 0.75rem;">Supervisor</span>
+        </div>
+      </div>
+
+      <div style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 12px; margin-top: 14px;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">
+          Librerías Implementadas en el Backend:
+        </div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;">
+          <li><strong>1. Spring Security 6:</strong> Autenticación, encriptación BCrypt y autorización RBAC.</li>
+          <li><strong>2. Apache POI 5.2.5:</strong> Exportación de conciliación y mermas a Microsoft Excel (.xlsx).</li>
+          <li><strong>3. OpenPDF 1.3.39:</strong> Generación y firma de Actas Oficiales de Auditoría en PDF.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MARBETE OFICIAL DE ESTANTERÍA (Impresión y Generador de Código de Barras) -->
+  <div id="marbete-modal" class="security-modal-overlay" onclick="if(event.target===this)cerrarModalEtiqueta()">
+    <div class="security-modal-card" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="bi bi-printer-fill" style="color: var(--brand-blue); font-size: 1.25rem;"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; color: var(--text-main);">Marbete Oficial de Estantería</h3>
+        </div>
+        <button onclick="cerrarModalEtiqueta()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <!-- Tarjeta Marbete Imprimible -->
+      <div class="marbete-shelf-card" id="printable-marbete-card">
+        <div class="marbete-retail-brand">MARATHON SPORTS • SEDE ATOCONGO</div>
+        <div class="marbete-prod-title" id="marbete-prod-title">Zapatillas Nike Air Max Excee Running</div>
+        <div class="marbete-meta-row">
+          <span id="marbete-sku-val">SKU: CAL-NIK-002</span>
+          <span id="marbete-talla-val">TALLA: 42</span>
+          <span id="marbete-color-val">BLANCO / AZUL</span>
+        </div>
+        <div class="marbete-price-box">
+          <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">PRECIO RETAIL</span>
+          <span class="marbete-price-val" id="marbete-price-val">S/ 389.00</span>
+        </div>
+        <div class="marbete-barcode-svg">
+          <svg width="220" height="55" viewBox="0 0 220 55" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="0" width="3" height="42" fill="#000" />
+            <rect x="5" y="0" width="2" height="42" fill="#000" />
+            <rect x="10" y="0" width="4" height="42" fill="#000" />
+            <rect x="17" y="0" width="2" height="42" fill="#000" />
+            <rect x="22" y="0" width="5" height="42" fill="#000" />
+            <rect x="30" y="0" width="2" height="42" fill="#000" />
+            <rect x="35" y="0" width="3" height="42" fill="#000" />
+            <rect x="42" y="0" width="4" height="42" fill="#000" />
+            <rect x="49" y="0" width="2" height="42" fill="#000" />
+            <rect x="54" y="0" width="3" height="42" fill="#000" />
+            <rect x="60" y="0" width="5" height="42" fill="#000" />
+            <rect x="68" y="0" width="2" height="42" fill="#000" />
+            <rect x="73" y="0" width="4" height="42" fill="#000" />
+            <rect x="80" y="0" width="3" height="42" fill="#000" />
+            <rect x="86" y="0" width="2" height="42" fill="#000" />
+            <rect x="91" y="0" width="4" height="42" fill="#000" />
+            <rect x="98" y="0" width="3" height="42" fill="#000" />
+            <rect x="104" y="0" width="2" height="42" fill="#000" />
+            <rect x="109" y="0" width="5" height="42" fill="#000" />
+            <rect x="117" y="0" width="3" height="42" fill="#000" />
+            <rect x="123" y="0" width="2" height="42" fill="#000" />
+            <rect x="128" y="0" width="4" height="42" fill="#000" />
+            <rect x="135" y="0" width="3" height="42" fill="#000" />
+            <rect x="141" y="0" width="5" height="42" fill="#000" />
+            <rect x="149" y="0" width="2" height="42" fill="#000" />
+            <rect x="154" y="0" width="4" height="42" fill="#000" />
+            <rect x="161" y="0" width="3" height="42" fill="#000" />
+            <rect x="167" y="0" width="2" height="42" fill="#000" />
+            <rect x="172" y="0" width="4" height="42" fill="#000" />
+            <rect x="179" y="0" width="3" height="42" fill="#000" />
+            <rect x="185" y="0" width="5" height="42" fill="#000" />
+            <rect x="193" y="0" width="2" height="42" fill="#000" />
+            <rect x="198" y="0" width="4" height="42" fill="#000" />
+            <rect x="205" y="0" width="2" height="42" fill="#000" />
+            <rect x="210" y="0" width="3" height="42" fill="#000" />
+            <rect x="216" y="0" width="4" height="42" fill="#000" />
+            <text x="110" y="53" font-family="monospace" font-size="10" text-anchor="middle" fill="#1e293b" letter-spacing="3" id="marbete-ean-svg-text">790123456712</text>
+          </svg>
+        </div>
+        <div style="text-align: center; font-size: 0.68rem; color: #94A3B8; margin-top: 6px;" id="marbete-ubicacion-text">
+          Ubicación: Pasillo A - Estante 03 • Auditoría Marathon 2026
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn-outline-blue" onclick="cerrarModalEtiqueta()" style="padding: 8px 14px; font-size: 0.82rem;">Cancelar</button>
+        <button class="btn-primary-blue" onclick="window.print()" style="padding: 8px 16px; font-size: 0.82rem;">
+          <i class="bi bi-printer"></i> Imprimir Etiqueta
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REGISTRO DE NUEVA AUDITORÍA DE DISCREPANCIAS -->
+  <div id="modal-nueva-auditoria" class="security-modal-overlay" onclick="if(event.target===this)cerrarModalNuevaAuditoria()">
+    <div class="security-modal-card modal-wide-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="background: #DCFCE7; color: #16A34A; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="bi bi-shield-plus"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main);">Registrar Nueva Auditoría de Discrepancia</h3>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">Procedimiento de Control Cíclico • Marathon Sports Sede Atocongo</span>
+          </div>
+        </div>
+        <button onclick="cerrarModalNuevaAuditoria()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <form id="form-nueva-auditoria" onsubmit="guardarNuevaAuditoria(event)">
+        <!-- Selector del Producto / SKU -->
+        <div class="form-group-custom" style="margin-bottom: 14px;">
+          <label class="form-label-custom" for="audit-new-sku-select">Producto / SKU a Auditar (22 Productos)</label>
+          <select id="audit-new-sku-select" class="select-custom" required onchange="actualizarValoresNuevoAudit(this.value)">
+            <!-- Poblado dinámicamente con los 22 productos -->
+          </select>
+        </div>
+
+        <!-- Fila de Comparativa: Stock SAP vs Físico Contado -->
+        <div class="form-row-two-col" style="margin-bottom: 14px;">
+          <div>
+            <label class="form-label-custom">Stock Teórico SAP (MB52)</label>
+            <input type="number" id="audit-new-stock-sap" class="search-input-field" readonly style="background: #F1F5F9; font-weight: 700; width: 100%;" value="14" />
+          </div>
+          <div>
+            <label class="form-label-custom" for="audit-new-stock-fis">Conteo Físico Real Auditado</label>
+            <input type="number" id="audit-new-stock-fis" class="search-input-field" min="0" required style="width: 100%; font-weight: 700;" value="12" oninput="calcularDiferenciaNuevoAudit()" />
+          </div>
+        </div>
+
+        <!-- Caja de Cálculo en Vivo de Diferencia e Impacto Económico -->
+        <div class="calc-diff-box" style="margin-bottom: 14px;">
+          <div>
+            <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Diferencia Detectada</div>
+            <div id="audit-new-diff-label" class="calc-diff-val" style="color: #DC2626;">-2 unidades (Faltante Crítico)</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Impacto Económico Est.</div>
+            <div id="audit-new-cost-label" class="calc-diff-val" style="color: #DC2626; font-size: 1rem;">S/ -320.00</div>
+          </div>
+        </div>
+
+        <!-- Causa Investigada -->
+        <div class="form-group-custom" style="margin-bottom: 14px;">
+          <label class="form-label-custom" for="audit-new-causa">Causa Raíz Investigada</label>
+          <select id="audit-new-causa" class="select-custom" required>
+            <option value="Hurto en Piso de Venta">Hurto en Piso de Venta (Prenda sustraída / desalarme ilícito)</option>
+            <option value="Error de Cruce de Tallas / Etiquetado">Error de Cruce de Tallas / Etiquetado cruzado</option>
+            <option value="Picking Traspapelado / Desubicado">Picking Traspapelado / Mercadería desubicada en trastienda</option>
+            <option value="Daño / Merma Física en Exhibición">Daño / Desglose físico en exhibición o probadores</option>
+            <option value="Venta no Asentada en POS">Venta no asentada en POS por falla de enlace SAP</option>
+            <option value="Sobrante por Devolución de Cliente">Sobrante por devolución no ingresada al sistema</option>
+          </select>
+        </div>
+
+        <!-- Evidencia / Nota de Auditoría -->
+        <div class="form-group-custom" style="margin-bottom: 18px;">
+          <label class="form-label-custom" for="audit-new-evidencia">Evidencia / Nota de Investigación</label>
+          <textarea id="audit-new-evidencia" class="search-input-field" rows="3" style="width: 100%; border-radius: 8px; font-family: inherit; font-size: 0.85rem;" placeholder="Detalla la revisión de pasillo, cámaras de seguridad o marbetes..." required>Revisión visual de anaquel completada. Se halla caja vacía en estantería.</textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-outline-blue" onclick="cerrarModalNuevaAuditoria()" style="padding: 9px 16px;">Cancelar</button>
+          <button type="submit" id="btn-submit-nueva-auditoria" class="btn-crear-auditoria" style="padding: 9px 20px;">
+            <i class="bi bi-check-circle-fill"></i> Guardar Auditoría
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE DE AUDITORÍA (EXPEDIENTE COMPLETO) -->
+  <div id="modal-detalle-auditoria" class="security-modal-overlay" onclick="if(event.target===this)cerrarModalDetalleAuditoria()">
+    <div class="security-modal-card modal-wide-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="bi bi-file-earmark-text-fill" style="color: var(--brand-red); font-size: 1.25rem;"></i>
+          <h3 style="margin: 0; font-size: 1.05rem; color: var(--text-main);">Expediente de Auditoría de Inventario</h3>
+        </div>
+        <button onclick="cerrarModalDetalleAuditoria()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <div id="detalle-audit-content" style="font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6;">
+        <!-- Rellenado dinámico con el expediente del item -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
+        <button class="btn-primary-blue" onclick="cerrarModalDetalleAuditoria()" style="padding: 8px 18px;">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

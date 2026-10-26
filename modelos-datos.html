@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modelos de Datos (Conceptual, Lógico y Físico) | Marathon Sports Atocongo</title>
+  <meta name="description" content="Visualizador interactivo de modelos de datos: Conceptual, Lógico y Físico para el Sistema de Conteo Cíclico Fraccionado de Inventario - Marathon Sports Sede Atocongo.">
+  <meta name="author" content="Joseph Aaron Churampi Quispe, Jose Armando Tunqui Puelles">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Mermaid.js para renderizado de diagramas vectoriales interactivos -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: #131b2e;
+      --bg-card-hover: #1a253e;
+      --border-color: #23314e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary-red: #e11d48;
+      --primary-red-glow: rgba(225, 29, 72, 0.25);
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-yellow: #fbbf24;
+      --accent-purple: #c084fc;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .top-header {
+      background: rgba(11, 15, 25, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-badge {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 4px 14px var(--primary-red-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text h1 span {
+      background: #e11d48;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+    }
+
+    .btn-action:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-blue);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      border-color: #e11d48;
+      color: #fff;
+      box-shadow: 0 4px 12px var(--primary-red-glow);
+    }
+
+    .btn-primary-action:hover {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      border-color: #f43f5e;
+      color: #fff;
+    }
+
+    /* HERO STRIP */
+    .hero-strip {
+      background: linear-gradient(180deg, rgba(225, 29, 72, 0.08) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 28px;
+      text-align: center;
+    }
+
+    .hero-strip h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .hero-strip p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 800px;
+      margin: 0 auto 18px auto;
+    }
+
+    .author-pill-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .author-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(35, 49, 78, 0.5);
+      border: 1px solid var(--border-color);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+
+    .author-pill i {
+      color: var(--accent-blue);
+    }
+
+    /* TAB NAVIGATION */
+    .tab-bar-container {
+      max-width: 1380px;
+      margin: 20px auto 0 auto;
+      padding: 0 24px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      background: #0e1422;
+      border: 1px solid var(--border-color);
+      padding: 6px;
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, #e11d48, #be123c);
+      box-shadow: 0 4px 12px var(--primary-red-glow);
+    }
+
+    /* MAIN CONTENT */
+    .content-container {
+      max-width: 1380px;
+      margin: 24px auto 60px auto;
+      padding: 0 24px;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS */
+    .model-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .model-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 14px;
+    }
+
+    .model-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .model-card-title h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .model-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-conceptual { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-logico { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid rgba(192, 132, 252, 0.3); }
+    .badge-fisico { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.3); }
+
+    /* IMAGE VIEWER SECTION */
+    .diagram-image-container {
+      background: #070a11;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .diagram-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f1524;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .toolbar-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-tool {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tool:hover {
+      background: var(--bg-card-hover);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .diagram-img-wrapper {
+      padding: 16px;
+      text-align: center;
+      background: radial-gradient(circle at center, #111827 0%, #070a11 100%);
+      overflow: auto;
+      max-height: 720px;
+      cursor: zoom-in;
+    }
+
+    .diagram-img-wrapper img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+      transition: transform 0.3s ease;
+    }
+
+    /* MERMAID VECTOR VIEWER */
+    .mermaid-box {
+      background: #080d1a;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      overflow-x: auto;
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mermaid {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* ENTITY TILES GRID */
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .entity-tile {
+      background: #0e1424;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .entity-tile:hover {
+      border-color: var(--primary-red);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .entity-tile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .entity-tile-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .entity-tile-pk {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-yellow);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .entity-tile p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .entity-tile-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #64748b;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    /* SQL DDL CONTAINER */
+    .sql-code-box {
+      position: relative;
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 14px;
+    }
+
+    .sql-code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #0f1524;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sql-code-header span {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-copy-sql {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-copy-sql:hover {
+      background: var(--accent-green);
+      color: #000;
+      border-color: var(--accent-green);
+    }
+
+    pre.sql-code {
+      padding: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      max-height: 520px;
+      line-height: 1.5;
+    }
+
+    /* DICCIONARIO INTERACTIVO */
+    .search-filter-box {
+      margin-bottom: 18px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: #0e1424;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px 12px 42px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .data-table-wrapper {
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    table.data-dict-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+
+    table.data-dict-table th {
+      background: #0f1524;
+      padding: 12px 16px;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.data-dict-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+    }
+
+    table.data-dict-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .pill-pk {
+      font-family: var(--font-mono);
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--accent-yellow);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .pill-fk {
+      font-family: var(--font-mono);
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .pill-uk {
+      font-family: var(--font-mono);
+      background: rgba(192, 132, 252, 0.15);
+      color: var(--accent-purple);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .pill-type {
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.76rem;
+    }
+
+    /* FOOTER */
+    .app-footer {
+      border-top: 1px solid var(--border-color);
+      background: #090d16;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      .top-header, .tab-bar, .diagram-toolbar, .header-actions, .btn-action {
+        display: none !important;
+      }
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .tab-pane {
+        display: block !important;
+        page-break-after: always;
+      }
+      .model-card {
+        border: 1px solid #ccc !important;
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand-group">
+      <div class="brand-logo-badge">
+        <i class="bi bi-diagram-3-fill"></i>
+      </div>
+      <div class="brand-text">
+        <h1>MARATHON <span>Atocongo</span> — MODELOS DE DATOS</h1>
+        <p>Sistema de Conteo Cíclico Fraccionado de Inventario • Arquitectura de Datos</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="index.html" class="btn-action">
+        <i class="bi bi-arrow-left"></i> Volver a la App
+      </a>
+      <button class="btn-action" onclick="window.print()">
+        <i class="bi bi-printer"></i> Imprimir / PDF
+      </button>
+      <a href="#tab-pane-fisico" class="btn-action btn-primary-action" onclick="switchTab('tab-btn-fisico', 'tab-pane-fisico')">
+        <i class="bi bi-database-check"></i> Ver DDL SQL
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO STRIP -->
+  <section class="hero-strip">
+    <h2>Arquitectura de Datos: Conceptual, Lógico y Físico</h2>
+    <p>
+      Diseño integral normalizado en 3FN para la gestión de auditorías cíclicas, escaneo con pistola/cámara, sincronización SAP MB52 y trazabilidad unitaria por SKU en Marathon Sports.
+    </p>
+    <div class="author-pill-container">
+      <span class="author-pill"><i class="bi bi-person-check-fill"></i> Joseph Aaron Churampi Quispe (U21212777)</span>
+      <span class="author-pill"><i class="bi bi-person-check-fill"></i> Jose Armando Tunqui Puelles (U23331844)</span>
+      <span class="author-pill"><i class="bi bi-building"></i> Sede Marathon Atocongo</span>
+      <span class="author-pill"><i class="bi bi-database"></i> MySQL 8.0 / InnoDB</span>
+    </div>
+  </section>
+
+  <!-- TAB NAVIGATION -->
+  <div class="tab-bar-container">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-btn-conceptual" onclick="switchTab('tab-btn-conceptual', 'tab-pane-conceptual')">
+        <i class="bi bi-lightbulb-fill"></i> 1. Modelo Conceptual (MCD)
+      </button>
+      <button class="tab-btn" id="tab-btn-logico" onclick="switchTab('tab-btn-logico', 'tab-pane-logico')">
+        <i class="bi bi-diagram-2-fill"></i> 2. Modelo Lógico Relacional (MLD)
+      </button>
+      <button class="tab-btn" id="tab-btn-fisico" onclick="switchTab('tab-btn-fisico', 'tab-pane-fisico')">
+        <i class="bi bi-server"></i> 3. Modelo Físico (MFD MySQL)
+      </button>
+      <button class="tab-btn" id="tab-btn-diccionario" onclick="switchTab('tab-btn-diccionario', 'tab-pane-diccionario')">
+        <i class="bi bi-table"></i> 4. Diccionario de Datos
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN TAB PANES -->
+  <main class="content-container">
+
+    <!-- ====================================================================
+         TAB 1: MODELO CONCEPTUAL (MCD)
+         ==================================================================== -->
+    <div id="tab-pane-conceptual" class="tab-pane active">
+
+      <!-- Visor de Imagen Gráfica Conceptual -->
+      <div class="diagram-image-container">
+        <div class="diagram-toolbar">
+          <div class="toolbar-label">
+            <i class="bi bi-image"></i> Diagrama de Alto Nivel — Entidades de Negocio & Cardinalidades
+          </div>
+          <div class="toolbar-buttons">
+            <button class="btn-tool" onclick="zoomImage('img-conceptual', 1.25)"><i class="bi bi-zoom-in"></i> Acercar</button>
+            <button class="btn-tool" onclick="zoomImage('img-conceptual', 0.8)"><i class="bi bi-zoom-out"></i> Alejar</button>
+            <button class="btn-tool" onclick="resetZoom('img-conceptual')"><i class="bi bi-arrow-clockwise"></i> Restaurar</button>
+            <a href="img/modelo_conceptual.jpg" download="modelo_conceptual_marathon.jpg" class="btn-tool"><i class="bi bi-download"></i> Descargar Imagen</a>
+          </div>
+        </div>
+        <div class="diagram-img-wrapper" id="wrapper-conceptual">
+          <img id="img-conceptual" src="img/modelo_conceptual.jpg" alt="Modelo Conceptual Marathon Sports Atocongo" style="transform: scale(1);">
+        </div>
+      </div>
+
+      <!-- Diagrama Vectorial Mermaid Interactivo -->
+      <div class="model-card">
+        <div class="model-card-header">
+          <div class="model-card-title">
+            <span class="model-badge badge-conceptual">MCD Vectorial</span>
+            <h3>Flujo Conceptual del Conteo Cíclico Fraccionado</h3>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="bi bi-check-circle-fill" style="color: var(--accent-green);"></i> Renderizado dinámico en SVG</span>
+        </div>
+
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+          El modelo conceptual describe las reglas del negocio de Marathon Sports: cómo la programación mensual fraccionada de los días 9, 19 y 28 segmenta los productos, registra las lecturas de los operarios y escala las mermas a la jefatura de tienda.
+        </p>
+
+        <div class="mermaid-box">
+          <div class="mermaid">
+flowchart LR
+    USUARIO["👤 USUARIO<br>• Jefe de Tienda<br>• Auditor Calzado<br>• Operador Tienda"]
+    CICLO["📅 CICLO CONTEO<br>• Días 9, 19, 28<br>• Línea Programada<br>• Estado"]
+    CONFIG["⚙️ CONFIGURACIÓN<br>• Muestreo ABC<br>• Responsables"]
+    PRODUCTO["👟 PRODUCTO<br>• SKU / EAN-13<br>• Stock SAP MB52<br>• Piso / Almacén / Vitrina"]
+    CONTEO["📋 CONTEO FÍSICO<br>• Unidades Contadas<br>• Fecha & Ubicación"]
+    ESCANEO["📷 HISTORIAL ESCANEO<br>• Lectura Código Barras<br>• Timestamp Auditoría"]
+    AUDITORIA["⚠️ AUDITORÍA MERMA<br>• Discrepancia SAP vs Físico<br>• Causal & Aprobación Jefe"]
+    TRAZABILIDAD["⏱️ TRAZABILIDAD<br>• Timeline de Eventos SKU<br>• Reservas & Ajustes"]
+
+    CONFIG -->|Define Regla ABC| CICLO
+    CICLO -->|Filtra productos por línea| PRODUCTO
+    USUARIO -->|Efectúa lectura| ESCANEO
+    USUARIO -->|Consolida recuento| CONTEO
+    USUARIO -->|Dictamina y aprueba| AUDITORIA
+    USUARIO -->|Registra| TRAZABILIDAD
+
+    PRODUCTO -->|Tiene registrado| CONTEO
+    PRODUCTO -->|Acumula lecturas| ESCANEO
+    PRODUCTO -->|Genera reporte si descuadra| AUDITORIA
+    PRODUCTO -->|Mantiene bitácora en| TRAZABILIDAD
+          </div>
+        </div>
+
+        <!-- Fichas de Entidades Conceptuales -->
+        <div class="entity-grid">
+          <div class="entity-tile">
+            <div class="entity-tile-header">
+              <span class="entity-tile-title"><i class="bi bi-box-seam" style="color: var(--accent-blue);"></i> PRODUCTO</span>
+              <span class="entity-tile-pk">SKU (PK)</span>
+            </div>
+            <p>Catálogo maestro sincronizado con SAP MB52. Mantiene precios, costos unitarios y distribución tripartita de stock.</p>
+            <div class="entity-tile-meta">
+              <span>Relación: 1 a N con Conteos y Mermas</span>
+              <span>Clave EAN-13 Única</span>
+            </div>
+          </div>
+
+          <div class="entity-tile">
+            <div class="entity-tile-header">
+              <span class="entity-tile-title"><i class="bi bi-calendar3" style="color: var(--accent-yellow);"></i> CICLO_CONTEO</span>
+              <span class="entity-tile-pk">ID (PK)</span>
+            </div>
+            <p>Eje metodológico del proyecto: divide el inventario en 3 jornadas fijas al mes (Días 9 Calzado, 19 Ropa, 28 Accesorios).</p>
+            <div class="entity-tile-meta">
+              <span>Fraccionado sin parar ventas</span>
+              <span>Clasificación ABC</span>
+            </div>
+          </div>
+
+          <div class="entity-tile">
+            <div class="entity-tile-header">
+              <span class="entity-tile-title"><i class="bi bi-exclamation-triangle" style="color: var(--primary-red);"></i> AUDITORIA_MERMA</span>
+              <span class="entity-tile-pk">ID (PK)</span>
+            </div>
+            <p>Captura toda discrepancia entre el conteo físico y el teórico de SAP. Requiere causal operativa y validación del Jefe de Tienda.</p>
+            <div class="entity-tile-meta">
+              <span>Workflow de Aprobación</span>
+              <span>Cálculo de Merma S/.</span>
+            </div>
+          </div>
+
+          <div class="entity-tile">
+            <div class="entity-tile-header">
+              <span class="entity-tile-title"><i class="bi bi-upc-scan" style="color: var(--accent-green);"></i> HISTORIAL_ESCANEO</span>
+              <span class="entity-tile-pk">ID (PK)</span>
+            </div>
+            <p>Auditoría milimétrica de cada pistola láser o cámara de terminal. Inmutable y con estampa de tiempo.</p>
+            <div class="entity-tile-meta">
+              <span>Timestamp exacto</span>
+              <span>Ubicación y Operador</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 2: MODELO LÓGICO RELACIONAL (MLD)
+         ==================================================================== -->
+    <div id="tab-pane-logico" class="tab-pane">
+
+      <!-- Visor de Blueprint Relacional -->
+      <div class="diagram-image-container">
+        <div class="diagram-toolbar">
+          <div class="toolbar-label">
+            <i class="bi bi-diagram-3"></i> Esquema Relacional Lógico (ERD Normalizado 3FN)
+          </div>
+          <div class="toolbar-buttons">
+            <button class="btn-tool" onclick="zoomImage('img-relacional', 1.25)"><i class="bi bi-zoom-in"></i> Acercar</button>
+            <button class="btn-tool" onclick="zoomImage('img-relacional', 0.8)"><i class="bi bi-zoom-out"></i> Alejar</button>
+            <button class="btn-tool" onclick="resetZoom('img-relacional')"><i class="bi bi-arrow-clockwise"></i> Restaurar</button>
+            <a href="img/modelo_relacional.jpg" download="modelo_relacional_erd.jpg" class="btn-tool"><i class="bi bi-download"></i> Descargar Imagen</a>
+          </div>
+        </div>
+        <div class="diagram-img-wrapper" id="wrapper-relacional">
+          <img id="img-relacional" src="img/modelo_relacional.jpg" alt="Modelo Relacional ERD Marathon Sports Atocongo" style="transform: scale(1);">
+        </div>
+      </div>
+
+      <!-- Diagrama Relacional Mermaid -->
+      <div class="model-card">
+        <div class="model-card-header">
+          <div class="model-card-title">
+            <span class="model-badge badge-logico">ERD 3FN</span>
+            <h3>Diagrama Entidad-Relación Lógico Detallado</h3>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="bi bi-key-fill" style="color: var(--accent-yellow);"></i> PK y FK formalizadas</span>
+        </div>
+
+        <div class="mermaid-box">
+          <div class="mermaid">
+erDiagram
+    PRODUCTOS ||--o| CONTEOS_FISICOS : "1 a 1 (posee consolidado)"
+    PRODUCTOS ||--o{ HISTORIAL_ESCANEOS : "1 a N (registra lecturas)"
+    PRODUCTOS ||--o{ AUDITORIAS_MERMA : "1 a N (genera discrepancias)"
+    PRODUCTOS ||--o{ MOVIMIENTOS_TRAZABILIDAD : "1 a N (línea de tiempo)"
+    
+    USUARIOS ||--o{ HISTORIAL_ESCANEOS : "1 a N (opera)"
+    USUARIOS ||--o{ AUDITORIAS_MERMA : "1 a N (valida / aprueba)"
+    USUARIOS ||--o{ MOVIMIENTOS_TRAZABILIDAD : "1 a N (ejecuta)"
+
+    PRODUCTOS {
+        varchar sku PK "Código SKU Marathon"
+        varchar ean UK "Código EAN-13"
+        varchar linea "Calzado, Ropa, Accesorios"
+        varchar marca "Nike, Adidas, Puma..."
+        varchar descripcion "Descripción comercial"
+        varchar talla "Talla del producto"
+        varchar color "Color comercial"
+        varchar ubicacion "Ubicación en tienda"
+        integer stock_sap "Stock teórico SAP MB52"
+        decimal precio_unitario "Precio de venta S/."
+        decimal costo_unitario "Costo de inventario S/."
+        integer stock_piso_venta "Stock piso de venta"
+        integer stock_almacen "Stock trastienda"
+        integer stock_vitrina "Stock exhibición"
+    }
+
+    CONTEOS_FISICOS {
+        bigint id PK
+        varchar sku FK "UK único por SKU"
+        integer conteo_fisico "Unidades reales"
+        datetime fecha_conteo "Fecha del conteo"
+        varchar escaneado_por "Operador responsable"
+        varchar ubicacion "Pasillo / Góndola"
+    }
+
+    CICLOS_CONTEO {
+        varchar id PK "ciclo-calzado-09, etc."
+        varchar linea "Categoría asociada"
+        integer dia_programado "Día 9, 19 o 28"
+        varchar nombre "Nombre del ciclo"
+        varchar descripcion "Detalle operativo"
+        varchar estado "Pendiente/En Proceso/Completado"
+        varchar frecuencia "Mensual"
+        varchar responsable "Auditor encargado"
+        varchar fecha_limite "Fecha límite corte"
+    }
+
+    AUDITORIAS_MERMA {
+        bigint id PK
+        varchar sku FK "SKU auditado"
+        varchar descripcion_producto "Nombre producto"
+        varchar linea "Línea deportiva"
+        varchar ubicacion "Góndola del hallazgo"
+        integer stock_sap "Stock teórico"
+        integer conteo_fisico "Stock físico"
+        integer diferencia "Diferencia calculada"
+        varchar tipo "Faltante / Sobrante"
+        varchar causal "Hurto, picking, etc."
+        text comentario "Evidencia auditoría"
+        varchar validado_por "Jefe de Tienda"
+        datetime fecha_validacion "Fecha de revisión"
+        boolean estado_aprobado "Aprobado / Pendiente"
+    }
+
+    HISTORIAL_ESCANEOS {
+        bigint id PK
+        varchar sku FK "SKU leído"
+        integer cantidad "+1 por lectura"
+        datetime timestamp "Marca temporal"
+        varchar ubicacion "Ubicación escaneo"
+        varchar usuario "Usuario escáner"
+    }
+
+    MOVIMIENTOS_TRAZABILIDAD {
+        bigint id PK
+        varchar sku FK "SKU trazado"
+        varchar tipo_badge "Ajustado/Conteo/Sync"
+        varchar titulo "Título del suceso"
+        varchar descripcion "Explicación detallada"
+        datetime fecha_hora "Fecha y hora evento"
+        varchar usuario "Autor del evento"
+        integer stock_sap "Stock SAP momento"
+        integer conteo_fisico "Conteo físico momento"
+        integer diferencia "Variación"
+    }
+
+    USUARIOS {
+        varchar id PK "user-01"
+        varchar nombre "Nombre y apellidos"
+        varchar usuario UK "Login de acceso"
+        varchar clave "Clave cifrada"
+        varchar rol "Jefe Tienda / Auditor"
+        varchar sede "Sede Atocongo"
+        varchar codigo "Matrícula institucional"
+    }
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+          <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <span style="color: var(--accent-blue); font-weight: 700; font-size: 0.85rem;"><i class="bi bi-shield-check"></i> Cumplimiento 1FN</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Atributos atómicos indivisibles; se eliminaron listas repetitivas en cadenas únicas y los timestamps se almacenan en formato estándar.</p>
+          </div>
+          <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <span style="color: var(--accent-purple); font-weight: 700; font-size: 0.85rem;"><i class="bi bi-shield-check"></i> Cumplimiento 2FN</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Todas las columnas no-clave dependen enteramente de su clave primaria respectiva sin dependencias parciales.</p>
+          </div>
+          <div style="background: #090d16; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <span style="color: var(--accent-green); font-weight: 700; font-size: 0.85rem;"><i class="bi bi-shield-check"></i> Cumplimiento 3FN</span>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Ausencia de dependencias transitivas; las entidades separan responsabilidades entre transacciones (escaneos), catálogo (productos) y seguridad (usuarios).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 3: MODELO FÍSICO (MFD)
+         ==================================================================== -->
+    <div id="tab-pane-fisico" class="tab-pane">
+      <div class="model-card">
+        <div class="model-card-header">
+          <div class="model-card-title">
+            <span class="model-badge badge-fisico">MySQL 8.0 / InnoDB</span>
+            <h3>Script DDL y Especificación de Almacenamiento Físico</h3>
+          </div>
+          <button class="btn-copy-sql" onclick="copySqlScript()">
+            <i class="bi bi-clipboard-check"></i> Copiar Script SQL Completo
+          </button>
+        </div>
+
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 14px;">
+          Implementación con integridad referencial completa (<code>FOREIGN KEY ... ON UPDATE CASCADE ON DELETE RESTRICT</code>), tipos de datos de alta precisión financiera (<code>DECIMAL(10,2)</code>) e índices B-Tree para optimización de consultas en tiempo real durante los conteos.
+        </p>
+
+        <!-- Script SQL Interactivo -->
+        <div class="sql-code-box">
+          <div class="sql-code-header">
+            <span><i class="bi bi-filetype-sql"></i> schema_marathon_atocongo.sql</span>
+            <span style="color: #64748b; font-size: 0.75rem;">Motor: InnoDB | Charset: utf8mb4</span>
+          </div>
+          <pre class="sql-code" id="sql-script-content"><code>-- ===================================================================
+-- SCRIPT DDL: BASE DE DATOS MARATHON SPORTS - SEDE ATOCONGO
+-- Caso de Estudio: Conteo Cíclico de Inventario Fraccionado
+-- Autores: Joseph Aaron Churampi (U21212777), Jose Armando Tunqui (U23331844)
+-- SGBD: MySQL Server 8.0+ / Motor InnoDB / Charset utf8mb4
+-- ===================================================================
+
+CREATE DATABASE IF NOT EXISTS marathon_inventario
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE marathon_inventario;
+
+-- 1. TABLA: PRODUCTOS (Sincronizado SAP MB52)
+CREATE TABLE IF NOT EXISTS productos (
+    sku VARCHAR(30) NOT NULL,
+    ean VARCHAR(30) NOT NULL,
+    linea VARCHAR(50) NOT NULL,
+    marca VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    talla VARCHAR(20) NULL,
+    color VARCHAR(50) NULL,
+    ubicacion VARCHAR(100) NULL,
+    stock_sap INT NOT NULL DEFAULT 0,
+    precio_unitario DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    costo_unitario DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    stock_piso_venta INT NULL DEFAULT 0,
+    stock_almacen INT NULL DEFAULT 0,
+    stock_vitrina INT NULL DEFAULT 0,
+    CONSTRAINT pk_productos PRIMARY KEY (sku),
+    CONSTRAINT uk_productos_ean UNIQUE (ean),
+    INDEX idx_productos_linea (linea),
+    INDEX idx_productos_marca (marca)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. TABLA: USUARIOS (Colaboradores y Auditores)
+CREATE TABLE IF NOT EXISTS usuarios (
+    id VARCHAR(30) NOT NULL,
+    nombre VARCHAR(120) NOT NULL,
+    usuario VARCHAR(50) NOT NULL,
+    clave VARCHAR(100) NOT NULL,
+    rol VARCHAR(50) NOT NULL,
+    sede VARCHAR(100) NULL DEFAULT 'Marathon Atocongo',
+    codigo VARCHAR(30) NULL,
+    CONSTRAINT pk_usuarios PRIMARY KEY (id),
+    CONSTRAINT uk_usuarios_usuario UNIQUE (usuario),
+    INDEX idx_usuarios_rol (rol)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. TABLA: CICLOS_CONTEO (Planificación Días 9, 19 y 28)
+CREATE TABLE IF NOT EXISTS ciclos_conteo (
+    id VARCHAR(50) NOT NULL,
+    linea VARCHAR(50) NOT NULL,
+    dia_programado INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(300) NULL,
+    estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+    frecuencia VARCHAR(50) NULL,
+    responsable VARCHAR(100) NULL,
+    fecha_limite VARCHAR(20) NULL,
+    CONSTRAINT pk_ciclos_conteo PRIMARY KEY (id),
+    INDEX idx_ciclos_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. TABLA: CONTEOS_FISICOS (Registro Consolidado por SKU)
+CREATE TABLE IF NOT EXISTS conteos_fisicos (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    sku VARCHAR(30) NOT NULL,
+    conteo_fisico INT NOT NULL DEFAULT 0,
+    fecha_conteo DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    escaneado_por VARCHAR(100) NULL,
+    ubicacion VARCHAR(100) NULL,
+    CONSTRAINT pk_conteos_fisicos PRIMARY KEY (id),
+    CONSTRAINT uk_conteos_sku UNIQUE (sku),
+    CONSTRAINT fk_conteos_producto FOREIGN KEY (sku)
+        REFERENCES productos(sku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    INDEX idx_conteos_fecha (fecha_conteo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. TABLA: AUDITORIAS_MERMA (Descuadres y Mermas por Aprobar)
+CREATE TABLE IF NOT EXISTS auditorias_merma (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    sku VARCHAR(30) NOT NULL,
+    descripcion_producto VARCHAR(200) NULL,
+    linea VARCHAR(50) NULL,
+    ubicacion VARCHAR(100) NULL,
+    stock_sap INT NULL DEFAULT 0,
+    conteo_fisico INT NULL DEFAULT 0,
+    diferencia INT NULL DEFAULT 0,
+    tipo VARCHAR(50) NOT NULL,
+    causal VARCHAR(200) NOT NULL,
+    comentario TEXT NULL,
+    validado_por VARCHAR(100) NULL,
+    fecha_validacion DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    estado_aprobado TINYINT(1) NOT NULL DEFAULT 0,
+    CONSTRAINT pk_auditorias_merma PRIMARY KEY (id),
+    CONSTRAINT fk_auditorias_producto FOREIGN KEY (sku)
+        REFERENCES productos(sku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    INDEX idx_auditorias_sku (sku),
+    INDEX idx_auditorias_estado (estado_aprobado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. TABLA: HISTORIAL_ESCANEOS (Lecturas Operativas de Escáner)
+CREATE TABLE IF NOT EXISTS historial_escaneos (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    sku VARCHAR(30) NOT NULL,
+    cantidad INT NOT NULL DEFAULT 1,
+    timestamp DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    ubicacion VARCHAR(100) NULL,
+    usuario VARCHAR(100) NULL,
+    CONSTRAINT pk_historial_escaneos PRIMARY KEY (id),
+    CONSTRAINT fk_historial_producto FOREIGN KEY (sku)
+        REFERENCES productos(sku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    INDEX idx_historial_sku (sku),
+    INDEX idx_historial_timestamp (timestamp)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. TABLA: MOVIMIENTOS_TRAZABILIDAD (Kárdex y Línea de Tiempo SKU)
+CREATE TABLE IF NOT EXISTS movimientos_trazabilidad (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    sku VARCHAR(30) NOT NULL,
+    tipo_badge VARCHAR(50) NOT NULL,
+    titulo VARCHAR(150) NOT NULL,
+    descripcion VARCHAR(500) NOT NULL,
+    fecha_hora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    usuario VARCHAR(100) NULL,
+    stock_sap INT NULL,
+    conteo_fisico INT NULL,
+    diferencia INT NULL,
+    CONSTRAINT pk_movimientos_trazabilidad PRIMARY KEY (id),
+    CONSTRAINT fk_trazabilidad_producto FOREIGN KEY (sku)
+        REFERENCES productos(sku)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    INDEX idx_trazabilidad_sku (sku),
+    INDEX idx_trazabilidad_fecha (fecha_hora)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. TABLA: CONFIGURACION_CICLO (Parámetros y Reglas ABC)
+CREATE TABLE IF NOT EXISTS configuracion_ciclo (
+    id BIGINT AUTO_INCREMENT NOT NULL,
+    frecuencia VARCHAR(120) NOT NULL,
+    categorias_muestreo VARCHAR(250) NOT NULL,
+    regla_muestreo VARCHAR(300) NOT NULL,
+    responsable_calzado VARCHAR(100) NULL,
+    rol_responsable_calzado VARCHAR(100) NULL,
+    responsable_jefe VARCHAR(100) NULL,
+    rol_responsable_jefe VARCHAR(100) NULL,
+    CONSTRAINT pk_configuracion_ciclo PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 4: DICCIONARIO DE DATOS INTERACTIVO
+         ==================================================================== -->
+    <div id="tab-pane-diccionario" class="tab-pane">
+      <div class="model-card">
+        <div class="model-card-header">
+          <div class="model-card-title">
+            <span class="model-badge badge-conceptual">Catálogo Técnico</span>
+            <h3>Diccionario de Atributos del Sistema</h3>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);"><i class="bi bi-info-circle"></i> Escriba para filtrar en vivo</span>
+        </div>
+
+        <!-- Buscador en tiempo real -->
+        <div class="search-filter-box">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="dict-search-input" class="search-input" placeholder="Buscar por tabla, nombre de campo, tipo o clave (ej: sku, ean, fecha, PK)..." onkeyup="filterDictTable()">
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-dict-table" id="dict-table">
+            <thead>
+              <tr>
+                <th>Tabla Física</th>
+                <th>Campo / Columna</th>
+                <th>Rol / Clave</th>
+                <th>Tipo de Dato</th>
+                <th>Nulo</th>
+                <th>Descripción y Regla de Negocio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- PRODUCTOS -->
+              <tr><td><code>productos</code></td><td><code>sku</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Identificador único institucional del producto (ej: CAL-NIK-001).</td></tr>
+              <tr><td><code>productos</code></td><td><code>ean</code></td><td><span class="pill-uk">UK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Código de barras de 13 dígitos para lectura con pistola escáner.</td></tr>
+              <tr><td><code>productos</code></td><td><code>linea</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Línea deportiva: Calzado, Ropa o Accesorios.</td></tr>
+              <tr><td><code>productos</code></td><td><code>marca</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Marca del producto (Nike, Adidas, Puma, Marathon).</td></tr>
+              <tr><td><code>productos</code></td><td><code>descripcion</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(200)</span></td><td>NO</td><td>Nombre y descripción comercial del artículo.</td></tr>
+              <tr><td><code>productos</code></td><td><code>stock_sap</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>NO</td><td>Stock teórico según corte del módulo SAP MB52.</td></tr>
+              <tr><td><code>productos</code></td><td><code>precio_unitario</code></td><td>Atributo</td><td><span class="pill-type">DECIMAL(10,2)</span></td><td>NO</td><td>Precio de venta en tienda (S/.).</td></tr>
+              <tr><td><code>productos</code></td><td><code>costo_unitario</code></td><td>Atributo</td><td><span class="pill-type">DECIMAL(10,2)</span></td><td>NO</td><td>Costo unitario valorizado para cálculo de mermas.</td></tr>
+              <tr><td><code>productos</code></td><td><code>stock_piso_venta</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>SÍ</td><td>Unidades presentes en sala de ventas/góndolas.</td></tr>
+              <tr><td><code>productos</code></td><td><code>stock_almacen</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>SÍ</td><td>Unidades almacenadas en trastienda.</td></tr>
+              <tr><td><code>productos</code></td><td><code>stock_vitrina</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>SÍ</td><td>Unidades de exhibición frontal o vitrina.</td></tr>
+
+              <!-- CONTEOS_FISICOS -->
+              <tr><td><code>conteos_fisicos</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">BIGINT AUTO</span></td><td>NO</td><td>Clave primaria técnica secuencial.</td></tr>
+              <tr><td><code>conteos_fisicos</code></td><td><code>sku</code></td><td><span class="pill-fk">FK</span> <span class="pill-uk">UK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Referencia a productos.sku. Un solo consolidado activo por producto.</td></tr>
+              <tr><td><code>conteos_fisicos</code></td><td><code>conteo_fisico</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>NO</td><td>Cantidad física verificada por el auditor en tienda.</td></tr>
+              <tr><td><code>conteos_fisicos</code></td><td><code>fecha_conteo</code></td><td>Atributo</td><td><span class="pill-type">DATETIME</span></td><td>SÍ</td><td>Marca temporal del último conteo registrado.</td></tr>
+              <tr><td><code>conteos_fisicos</code></td><td><code>escaneado_por</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(100)</span></td><td>SÍ</td><td>Nombre del colaborador u operador que ejecutó el conteo.</td></tr>
+
+              <!-- CICLOS_CONTEO -->
+              <tr><td><code>ciclos_conteo</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Identificador: ciclo-calzado-09, ciclo-ropa-19, ciclo-accesorios-28.</td></tr>
+              <tr><td><code>ciclos_conteo</code></td><td><code>dia_programado</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>NO</td><td>Día de ejecución mensual obligatoria: 9, 19 o 28.</td></tr>
+              <tr><td><code>ciclos_conteo</code></td><td><code>linea</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Categoría sometida a auditoría.</td></tr>
+              <tr><td><code>ciclos_conteo</code></td><td><code>estado</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Pendiente, En Proceso, Completado.</td></tr>
+
+              <!-- AUDITORIAS_MERMA -->
+              <tr><td><code>auditorias_merma</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">BIGINT AUTO</span></td><td>NO</td><td>Clave primaria del registro de merma/discrepancia.</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>sku</code></td><td><span class="pill-fk">FK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Referencia a productos.sku para auditoría de faltante/sobrante.</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>diferencia</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>SÍ</td><td>Diferencia matemática: conteo_fisico - stock_sap.</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>tipo</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Clasificación: Faltante (-X) o Sobrante (+X).</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>causal</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(200)</span></td><td>NO</td><td>Motivo operativo (ej: Hurto en Piso de Venta, Picking Traspapelado).</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>comentario</code></td><td>Atributo</td><td><span class="pill-type">TEXT</span></td><td>SÍ</td><td>Evidencia testimonial o nota técnica del hallazgo.</td></tr>
+              <tr><td><code>auditorias_merma</code></td><td><code>estado_aprobado</code></td><td>Atributo</td><td><span class="pill-type">TINYINT(1)</span></td><td>NO</td><td>0 = Pendiente de aprobación, 1 = Aprobado por Jefe de Tienda.</td></tr>
+
+              <!-- HISTORIAL_ESCANEOS -->
+              <tr><td><code>historial_escaneos</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">BIGINT AUTO</span></td><td>NO</td><td>Secuencial único de la lectura efectuada con el escáner.</td></tr>
+              <tr><td><code>historial_escaneos</code></td><td><code>sku</code></td><td><span class="pill-fk">FK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Referencia a productos.sku del código escaneado.</td></tr>
+              <tr><td><code>historial_escaneos</code></td><td><code>cantidad</code></td><td>Atributo</td><td><span class="pill-type">INT</span></td><td>NO</td><td>Incremento de la lectura (+1 unidad).</td></tr>
+              <tr><td><code>historial_escaneos</code></td><td><code>timestamp</code></td><td>Atributo</td><td><span class="pill-type">DATETIME</span></td><td>SÍ</td><td>Marca temporal exacta de la lectura.</td></tr>
+
+              <!-- MOVIMIENTOS_TRAZABILIDAD -->
+              <tr><td><code>movimientos_trazabilidad</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">BIGINT AUTO</span></td><td>NO</td><td>Identificador del evento de auditoría/kárdex.</td></tr>
+              <tr><td><code>movimientos_trazabilidad</code></td><td><code>sku</code></td><td><span class="pill-fk">FK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Referencia a productos.sku para trazabilidad histórica.</td></tr>
+              <tr><td><code>movimientos_trazabilidad</code></td><td><code>tipo_badge</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Ajustado, Conteo Físico, MB52 Sync, Reserva Pre-Venta.</td></tr>
+              <tr><td><code>movimientos_trazabilidad</code></td><td><code>fecha_hora</code></td><td>Atributo</td><td><span class="pill-type">DATETIME</span></td><td>NO</td><td>Estampa de tiempo del evento.</td></tr>
+
+              <!-- USUARIOS -->
+              <tr><td><code>usuarios</code></td><td><code>id</code></td><td><span class="pill-pk">PK</span></td><td><span class="pill-type">VARCHAR(30)</span></td><td>NO</td><td>Identificador alfanumérico (ej: user-01).</td></tr>
+              <tr><td><code>usuarios</code></td><td><code>usuario</code></td><td><span class="pill-uk">UK</span></td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Login único de autenticación en el sistema.</td></tr>
+              <tr><td><code>usuarios</code></td><td><code>rol</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(50)</span></td><td>NO</td><td>Jefe de Tienda, Supervisor de Inventario, Personal de Tienda.</td></tr>
+              <tr><td><code>usuarios</code></td><td><code>codigo</code></td><td>Atributo</td><td><span class="pill-type">VARCHAR(30)</span></td><td>SÍ</td><td>Matrícula institucional (ej: U21212777).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <p>Sistema de Conteo Cíclico Fraccionado de Inventario • Caso Marathon Atocongo © 2026</p>
+    <p style="margin-top: 4px; color: #64748b;">Desarrollado para Sustentación del Proyecto Integrador • Ingeniería de Sistemas</p>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Inicializar Mermaid
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#080d1a',
+        primaryColor: '#e11d48',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#e11d48',
+        lineColor: '#38bdf8',
+        secondaryColor: '#1e293b',
+        tertiaryColor: '#0f172a'
+      }
+    });
+
+    // Control de pestañas
+    function switchTab(btnId, paneId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      const activeBtn = document.getElementById(btnId);
+      const activePane = document.getElementById(paneId);
+
+      if (activeBtn) activeBtn.classList.add('active');
+      if (activePane) activePane.classList.add('active');
+    }
+
+    // Zoom interactivo de imágenes
+    const zoomLevels = {
+      'img-conceptual': 1,
+      'img-relacional': 1
+    };
+
+    function zoomImage(imgId, factor) {
+      const img = document.getElementById(imgId);
+      if (!img) return;
+      zoomLevels[imgId] = Math.max(0.5, Math.min(3, zoomLevels[imgId] * factor));
+      img.style.transform = `scale(${zoomLevels[imgId]})`;
+    }
+
+    function resetZoom(imgId) {
+      const img = document.getElementById(imgId);
+      if (!img) return;
+      zoomLevels[imgId] = 1;
+      img.style.transform = 'scale(1)';
+    }
+
+    // Copiar Script SQL al portapapeles
+    function copySqlScript() {
+      const sqlCode = document.getElementById('sql-script-content').innerText;
+      navigator.clipboard.writeText(sqlCode).then(() => {
+        const btn = document.querySelector('.btn-copy-sql');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> ¡Copiado con Éxito!';
+        btn.style.background = '#22c55e';
+        btn.style.color = '#000';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+          btn.style.color = '';
+        }, 2500);
+      }).catch(err => {
+        alert("No se pudo copiar automáticamente. Por favor seleccione y copie el texto manualmente.");
+      });
+    }
+
+    // Filtro interactivo de tabla de diccionario de datos
+    function filterDictTable() {
+      const input = document.getElementById('dict-search-input');
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById('dict-table');
+      const rows = table.getElementsByTagName('tr');
+
+      for (let i = 1; i < rows.length; i++) {
+        const rowText = rows[i].innerText.toLowerCase();
+        if (rowText.indexOf(filter) > -1) {
+          rows[i].style.display = "";
+        } else {
+          rows[i].style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

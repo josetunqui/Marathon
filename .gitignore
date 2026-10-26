@@ -1,0 +1,29 @@
+# Build output and dependencies
+target/
+backend/target/
+*.class
+
+# Packaged archives
+*.jar
+*.war
+*.ear
+
+# Maven Wrapper
+!.mvn/wrapper/*.jar
+
+# Log files
+*.log
+
+# IDE configuration
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+
+# OS generated files
+Thumbs.db
+.DS_Store
+desktop.ini
