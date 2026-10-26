@@ -123,9 +123,9 @@ public class AuthController {
     }
 
     private String obtenerNombreCompleto(String username) {
-        if ("operario".equalsIgnoreCase(username)) return "Jose Armando Tunqui (Operario Sede Atocongo)";
-        if ("auditor".equalsIgnoreCase(username)) return "Joseph Aaron Churampi (Auditor de Inventario)";
-        if ("supervisor".equalsIgnoreCase(username)) return "Anita Condo López (Supervisora Marathon)";
+        if ("operario".equalsIgnoreCase(username) || "jtunqui".equalsIgnoreCase(username)) return "Jose Armando Tunqui (Operario Sede Atocongo)";
+        if ("auditor".equalsIgnoreCase(username) || "jchurampi".equalsIgnoreCase(username)) return "Joseph Aaron Churampi (Auditor de Inventario)";
+        if ("supervisor".equalsIgnoreCase(username) || "admin".equalsIgnoreCase(username)) return "Anita Condo López (Supervisora Marathon)";
         return username;
     }
 }

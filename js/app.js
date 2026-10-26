@@ -161,6 +161,8 @@ function initScannerView() {
         }
       }
     });
+  }
+
   // Botón directo Registrar/Leer
   const btnSubmit = document.getElementById('btn-scanner-submit');
   if (btnSubmit) {

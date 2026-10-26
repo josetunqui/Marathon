@@ -43,10 +43,22 @@ public class SecurityConfig {
                 .roles("OPERARIO")
                 .build();
 
+        UserDetails jtunqui = User.builder()
+                .username("jtunqui")
+                .password(encoder.encode("marathon2026"))
+                .roles("OPERARIO")
+                .build();
+
         // Usuario 2: Auditor de Inventario y Control de Pérdidas
         UserDetails auditor = User.builder()
                 .username("auditor")
                 .password(encoder.encode("auditor123"))
+                .roles("AUDITOR", "OPERARIO")
+                .build();
+
+        UserDetails jchurampi = User.builder()
+                .username("jchurampi")
+                .password(encoder.encode("marathon2026"))
                 .roles("AUDITOR", "OPERARIO")
                 .build();
 
@@ -57,7 +69,13 @@ public class SecurityConfig {
                 .roles("SUPERVISOR", "AUDITOR", "OPERARIO", "ADMIN")
                 .build();
 
-        return new InMemoryUserDetailsManager(operario, auditor, supervisor);
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(encoder.encode("admin123"))
+                .roles("SUPERVISOR", "AUDITOR", "OPERARIO", "ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(operario, jtunqui, auditor, jchurampi, supervisor, admin);
     }
 
     @Bean
