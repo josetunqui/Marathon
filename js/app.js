@@ -161,12 +161,28 @@ function initScannerView() {
         }
       }
     });
+  // Botón directo Registrar/Leer
+  const btnSubmit = document.getElementById('btn-scanner-submit');
+  if (btnSubmit) {
+    btnSubmit.addEventListener('click', async () => {
+      await ejecutarEscaneoDirecto();
+    });
   }
+}
+
+async function ejecutarEscaneoDirecto() {
+  const input = document.getElementById('scanner-barcode-input');
+  const code = (input ? input.value : '').trim() || "790123456712";
+  await executeScan(code, 1);
 }
 
 async function executeScan(codigo, cantidad) {
   playScanBeep(true);
   triggerScanFlash();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(50); } catch (e) {}
+  }
 
   const res = await window.apiClient.scanCode(codigo, cantidad);
 
@@ -1697,84 +1713,6 @@ async function eliminarUsuario(id) {
   await cargarUsuariosCRUD();
 }
 
-// ==========================================================================
-// VISTA MÓVIL DEDICADA: TERMINAL INDUSTRIAL ESCÁNER (ZEBRA / HONEYWELL)
-// ==========================================================================
-let modoTerminalMovilActivo = false;
-
-function toggleModoTerminalMovil() {
-  modoTerminalMovilActivo = !modoTerminalMovilActivo;
-  const mobileWrap = document.getElementById('scanner-mobile-terminal-wrap');
-  const desktopWrap = document.getElementById('scanner-desktop-view-wrap');
-  const btnToggle = document.getElementById('btn-toggle-terminal-movil');
-
-  if (mobileWrap && desktopWrap) {
-    if (modoTerminalMovilActivo) {
-      mobileWrap.style.display = 'block';
-      desktopWrap.style.display = 'none';
-      if (btnToggle) btnToggle.innerHTML = '<i class="bi bi-display"></i> Vista Escritorio';
-      showToast('Modo Terminal Móvil Activo (PDA Industrial Zebra / Honeywell)', 'bi-phone-fill');
-      const mobileInput = document.getElementById('mobile-scanner-barcode-input');
-      if (mobileInput) mobileInput.focus();
-    } else {
-      mobileWrap.style.display = 'none';
-      desktopWrap.style.display = 'grid';
-      if (btnToggle) btnToggle.innerHTML = '<i class="bi bi-phone-fill"></i> Vista Terminal Móvil (PDA)';
-    }
-  }
-}
-
-async function setMobileScanCode(code) {
-  const input = document.getElementById('mobile-scanner-barcode-input');
-  if (input) input.value = code;
-  await ejecutarEscaneoMovil();
-}
-
-async function ejecutarEscaneoMovil() {
-  const input = document.getElementById('mobile-scanner-barcode-input');
-  const barcode = (input ? input.value : '').trim();
-  if (!barcode) return;
-
-  if (navigator.vibrate) {
-    navigator.vibrate(60);
-  }
-
-  await executeScan(barcode, 1);
-  actualizarTarjetaTerminalMovil(barcode);
-}
-
-async function incrementarConteoMovil(qty) {
-  const input = document.getElementById('mobile-scanner-barcode-input');
-  const barcode = (input ? input.value : '790123456712').trim();
-  if (navigator.vibrate) navigator.vibrate(80);
-  await executeScan(barcode, qty);
-  actualizarTarjetaTerminalMovil(barcode);
-}
-
-function actualizarTarjetaTerminalMovil(barcode) {
-  const nameEl = document.getElementById('last-read-name');
-  const metaEl = document.getElementById('last-read-meta');
-  const locEl = document.getElementById('last-read-location');
-  const totalEl = document.getElementById('last-read-qty-total');
-  const timeEl = document.getElementById('last-read-time');
-
-  if (nameEl && document.getElementById('mobile-last-name')) {
-    document.getElementById('mobile-last-name').textContent = nameEl.textContent;
-  }
-  if (metaEl && document.getElementById('mobile-last-meta')) {
-    document.getElementById('mobile-last-meta').textContent = metaEl.textContent;
-  }
-  if (locEl && document.getElementById('mobile-last-loc')) {
-    document.getElementById('mobile-last-loc').textContent = locEl.textContent.replace('Ubicación física: ', '');
-  }
-  if (totalEl && document.getElementById('mobile-last-qty')) {
-    document.getElementById('mobile-last-qty').textContent = totalEl.textContent;
-  }
-  if (timeEl && document.getElementById('mobile-last-time')) {
-    document.getElementById('mobile-last-time').textContent = timeEl.textContent;
-  }
-}
-
 // Exportación global de funciones para el DOM
 window.abrirModalSeguridad = abrirModalSeguridad;
 window.cerrarModalSeguridad = cerrarModalSeguridad;
@@ -1793,6 +1731,7 @@ window.setScannerCode = setScannerCode;
 window.abrirModalEtiqueta = abrirModalEtiqueta;
 window.cerrarModalEtiqueta = cerrarModalEtiqueta;
 window.executeScan = executeScan;
+window.ejecutarEscaneoDirecto = ejecutarEscaneoDirecto;
 window.buscarPreVentaEnVivo = buscarPreVentaEnVivo;
 window.cerrarSugerenciasPreVenta = cerrarSugerenciasPreVenta;
 window.limpiarBusquedaPreVenta = limpiarBusquedaPreVenta;
@@ -1813,16 +1752,12 @@ window.seleccionarSkuTrazabilidad = seleccionarSkuTrazabilidad;
 window.cargarAlertasDiscrepancias = cargarAlertasDiscrepancias;
 window.iniciarAuditoriaRapida = iniciarAuditoriaRapida;
 
-// Nuevas funciones CRUD y Terminal Móvil
+// Funciones CRUD Usuarios (Exclusivo Supervisor)
 window.cargarUsuariosCRUD = cargarUsuariosCRUD;
 window.abrirModalUsuario = abrirModalUsuario;
 window.cerrarModalUsuario = cerrarModalUsuario;
 window.guardarUsuario = guardarUsuario;
 window.eliminarUsuario = eliminarUsuario;
-window.toggleModoTerminalMovil = toggleModoTerminalMovil;
-window.setMobileScanCode = setMobileScanCode;
-window.ejecutarEscaneoMovil = ejecutarEscaneoMovil;
-window.incrementarConteoMovil = incrementarConteoMovil;
 
 
 

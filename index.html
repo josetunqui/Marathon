@@ -156,7 +156,7 @@
       </nav>
 
       <!-- Controles de Estado, Reset y Perfil de Usuario -->
-      <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="header-user-controls" style="display: flex; align-items: center; gap: 8px;">
         <span class="live-status-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 20px; font-size: 0.74rem; font-weight: 700; color: #10B981;">
           <i class="bi bi-circle-fill" style="font-size: 7px;"></i> SAP MB52 Online
         </span>
@@ -616,106 +616,33 @@
           <p class="page-subtitle">Registro directo desde terminales RF / Escáneres de mano en pasillos y anaqueles</p>
         </div>
 
-        <!-- Botón para alternar a Modo Terminal Móvil -->
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn-subtle-reseed" onclick="toggleModoTerminalMovil()" id="btn-toggle-terminal-movil" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 700; color: #0284C7; border-color: #38BDF8; background: #F0F9FF; display: inline-flex; align-items: center; gap: 6px;">
-            <i class="bi bi-phone-fill"></i> Vista Terminal Móvil (PDA / Smartphone)
+        <!-- Acciones rápidas de escaneo -->
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-subtle-reseed" onclick="abrirModalEtiqueta()" title="Generar e imprimir marbete oficial de estantería con código de barras" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 700; color: var(--brand-blue); border-color: #BFDBFE; background: #EFF6FF; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-printer-fill"></i> Imprimir Marbete
           </button>
         </div>
       </div>
 
-      <!-- CONTENEDOR VISTA MÓVIL DEDICADA (Simulación Terminal Industrial Zebra / Honeywell) -->
-      <div id="scanner-mobile-terminal-wrap" class="scanner-mobile-terminal" style="display: none;">
-        <div class="mobile-terminal-bezel">
-          <!-- Barra superior del terminal PDA -->
-          <div class="terminal-status-bar">
-            <span><i class="bi bi-broadcast"></i> Marathon RF • Pasillo A</span>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <span><i class="bi bi-volume-up-fill" id="terminal-audio-icon"></i> Beep ON</span>
-              <span><i class="bi bi-wifi"></i> 5G</span>
-              <span><i class="bi bi-battery-charging"></i> 98%</span>
-            </div>
-          </div>
-
-          <!-- Lente láser y viewfinder de código de barras -->
-          <div class="terminal-laser-viewfinder">
-            <div class="laser-scanner-line"></div>
-            <div class="laser-corners">
-              <span class="corner tl"></span>
-              <span class="corner tr"></span>
-              <span class="corner bl"></span>
-              <span class="corner br"></span>
-            </div>
-            <div class="laser-instruction">
-              <i class="bi bi-upc-scan" style="font-size: 1.8rem; color: #38BDF8;"></i>
-              <div>Apunta el lector o ingresa el código</div>
-            </div>
-          </div>
-
-          <!-- Input táctil gigante para el código EAN -->
-          <div class="terminal-input-wrap">
-            <input type="text" id="mobile-scanner-barcode-input" class="terminal-barcode-input" placeholder="790123456712..." value="790123456712" autocomplete="off" />
-            <button type="button" class="btn-terminal-trigger" onclick="ejecutarEscaneoMovil()" title="Disparar lectura"><i class="bi bi-lightning-charge-fill"></i> SCAN</button>
-          </div>
-
-          <!-- Botonera numérica y táctil de conteo rápido para guantes -->
-          <div class="terminal-keypad-grid">
-            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(1)">+1 Unidad</button>
-            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(5)">+5 Unidades</button>
-            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(10)">+10 Pack</button>
-          </div>
-
-          <!-- Atajos rápidos táctiles de productos top -->
-          <div class="terminal-quick-chips">
-            <button type="button" onclick="setMobileScanCode('790123456712')">Nike Air Max (42)</button>
-            <button type="button" onclick="setMobileScanCode('7751234001015')">Nike Vapor 15 (41)</button>
-            <button type="button" onclick="setMobileScanCode('7751234002012')">Camiseta Perú (M)</button>
-          </div>
-
-          <!-- Tarjeta de confirmación táctil del último producto escaneado -->
-          <div class="terminal-last-scanned-card" id="mobile-last-scanned-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span class="terminal-pill-ok"><i class="bi bi-check-circle-fill"></i> Conteo Registrado</span>
-              <span style="font-size: 0.72rem; color: #94A3B8;" id="mobile-last-time">14:45:00</span>
-            </div>
-            <div class="terminal-prod-name" id="mobile-last-name">Zapatillas Nike Air Max Excee Running</div>
-            <div class="terminal-prod-meta" id="mobile-last-meta">SKU: CAL-NIK-002 • Talla: 42 • Blanco / Azul</div>
-            <div class="terminal-stock-display">
-              <div>
-                <div style="font-size: 0.7rem; color: #94A3B8;">Ubicación:</div>
-                <div style="font-weight: 700; color: #F1F5F9; font-size: 0.82rem;" id="mobile-last-loc">Pasillo A - Estante 03</div>
-              </div>
-              <div style="text-align: right;">
-                <div style="font-size: 0.7rem; color: #94A3B8;">Conteo Físico:</div>
-                <div style="font-size: 1.4rem; font-weight: 900; color: #38BDF8;" id="mobile-last-qty">11 u.</div>
-              </div>
-            </div>
-          </div>
-
-          <div style="text-align: center; margin-top: 10px;">
-            <button type="button" class="btn-subtle-gray" onclick="toggleModoTerminalMovil()" style="font-size: 0.75rem; color: #94A3B8;">
-              <i class="bi bi-display"></i> Volver a Vista de Escritorio
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- VISTA ESTÁNDAR ESCRITORIO -->
+      <!-- VISTA RESPONSIVA AUTOMÁTICA (Mantiene exactamente el mismo estilo visual Marathon en móvil, tablet y escritorio) -->
       <div class="two-col-grid" id="scanner-desktop-view-wrap">
         <!-- Columna Izquierda: Entrada y Último Producto Leído -->
         <div style="display: flex; flex-direction: column; gap: 18px;">
-          <!-- Entrada Directa -->
+          <!-- Entrada Directa / Escáner -->
           <div class="white-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h3 class="card-title-lg" style="margin-bottom: 0;">Entrada Directa / Simulación de Lectura</h3>
-              <button type="button" class="btn-subtle-reseed" onclick="abrirModalEtiqueta()" title="Generar e imprimir marbete oficial de estantería con código de barras" style="padding: 4px 10px; font-size: 0.78rem;">
-                <i class="bi bi-printer-fill" style="color: var(--brand-blue);"></i> Imprimir Marbete
-              </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <h3 class="card-title-lg" style="margin-bottom: 0;">Lectura y Registro de Código de Barras</h3>
+              <span class="live-status-pill" style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; font-size: 0.72rem;">
+                <i class="bi bi-broadcast" style="color: #10B981;"></i> Escáner Listo
+              </span>
             </div>
             
             <div class="barcode-input-container">
               <i class="bi bi-upc-scan barcode-icon"></i>
               <input type="text" id="scanner-barcode-input" class="barcode-text-input" placeholder="790123456712" value="790123456712" autocomplete="off" />
+              <button type="button" class="btn-scanner-submit" id="btn-scanner-submit" onclick="ejecutarEscaneoDirecto()" title="Registrar lectura de código de barras">
+                <i class="bi bi-lightning-charge-fill"></i> <span class="btn-scan-text">Registrar</span>
+              </button>
             </div>
 
             <div class="quick-inc-row">
@@ -726,12 +653,12 @@
             </div>
 
             <!-- Chips de Prueba Rápida con 1 Clic -->
-            <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-              <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 600;">Atajos de Escaneo:</span>
-              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('790123456712')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Air Max (790123...)</button>
-              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234001015')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Vapor 15 (775123...)</button>
-              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234002012')" style="padding: 3px 8px; font-size: 0.72rem;">Camiseta Perú (775123...)</button>
-              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234003019')" style="padding: 3px 8px; font-size: 0.72rem;">Balón Adidas (775123...)</button>
+            <div class="scanner-shortcuts-row" style="margin-top: 14px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 700;">Atajos de Escaneo:</span>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('790123456712')">Nike Air Max (42)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234001015')">Nike Vapor 15 (41)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234002012')">Camiseta Perú (M)</button>
+              <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234003019')">Balón Adidas (5)</button>
             </div>
           </div>
 

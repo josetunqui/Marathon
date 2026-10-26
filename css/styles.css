@@ -1074,9 +1074,8 @@ body {
   opacity: 1;
 }
 
-/* Responsive */
+/* Responsive Básico */
 @media (max-width: 868px) {
-  .header-nav { display: none; }
   .two-col-grid { grid-template-columns: 1fr; }
   .footer-container { flex-direction: column; gap: 6px; text-align: center; }
 }
@@ -2198,226 +2197,272 @@ body {
 }
 
 /* ==========================================================================
-   TERMINAL MÓVIL INDUSTRIAL (ZEBRA / HONEYWELL / SMARTPHONE VIEW)
+   ESTILOS MEJORADOS DE ENTRADA DIRECTA / ESCÁNER CORPORATIVO
    ========================================================================== */
-.scanner-mobile-terminal {
-  max-width: 440px;
-  margin: 0 auto 24px auto;
-  animation: fadeIn 0.3s ease;
-}
-
-.mobile-terminal-bezel {
-  background: #0B1120;
-  border: 4px solid #1E293B;
-  border-radius: 28px;
-  padding: 18px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  color: #F8FAFC;
-  position: relative;
-}
-
-.terminal-status-bar {
+.barcode-input-container {
+  border: 2px solid var(--brand-blue);
+  border-radius: var(--radius-md);
+  background: #FFFFFF;
+  padding: 6px 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.72rem;
-  color: #94A3B8;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 14px;
-  font-family: monospace;
-}
-
-.terminal-laser-viewfinder {
-  height: 140px;
-  background: #020617;
-  border: 2px dashed #38BDF8;
-  border-radius: 14px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.laser-scanner-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #E11D48, #F43F5E, transparent);
-  box-shadow: 0 0 12px #E11D48, 0 0 4px #FFFFFF;
-  animation: scanLaser 2s infinite ease-in-out;
-}
-
-@keyframes scanLaser {
-  0% { top: 5%; opacity: 0.4; }
-  50% { top: 90%; opacity: 1; }
-  100% { top: 5%; opacity: 0.4; }
-}
-
-.laser-corners .corner {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border-color: #38BDF8;
-  border-style: solid;
-}
-.corner.tl { top: 8px; left: 8px; border-width: 3px 0 0 3px; }
-.corner.tr { top: 8px; right: 8px; border-width: 3px 3px 0 0; }
-.corner.bl { bottom: 8px; left: 8px; border-width: 0 0 3px 3px; }
-.corner.br { bottom: 8px; right: 8px; border-width: 0 3px 3px 0; }
-
-.laser-instruction {
-  text-align: center;
-  font-size: 0.78rem;
-  color: #CBD5E1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  z-index: 2;
-}
-
-.terminal-input-wrap {
-  display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 12px;
-}
-
-.terminal-barcode-input {
-  flex: 1;
-  background: #0F172A;
-  border: 2px solid #334155;
-  border-radius: 10px;
-  padding: 12px 14px;
-  color: #F8FAFC;
-  font-family: monospace;
-  font-size: 1.05rem;
-  font-weight: 700;
-  outline: none;
+  box-shadow: 0 1px 3px rgba(0, 82, 204, 0.08);
   transition: all 0.2s ease;
 }
 
-.terminal-barcode-input:focus {
-  border-color: #38BDF8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+.barcode-input-container:focus-within {
+  border-color: #0041A8;
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.16);
 }
 
-.btn-terminal-trigger {
-  background: linear-gradient(135deg, #E11D48, #BE123C);
+.btn-scanner-submit {
+  background: linear-gradient(135deg, var(--brand-blue), #003E99);
   color: #FFFFFF;
   border: none;
-  border-radius: 10px;
-  padding: 0 18px;
-  font-weight: 800;
-  font-size: 0.88rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.btn-terminal-trigger:active {
-  transform: scale(0.96);
-}
-
-.terminal-keypad-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.btn-terminal-key {
-  background: #1E293B;
-  border: 1px solid #334155;
-  color: #F8FAFC;
-  padding: 10px;
-  border-radius: 8px;
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
   font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-terminal-key:hover {
-  background: #334155;
-}
-
-.btn-terminal-key:active {
-  background: #0284C7;
-  transform: scale(0.96);
-}
-
-.terminal-quick-chips {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-}
-
-.terminal-quick-chips button {
-  background: #1E293B;
-  border: 1px solid #334155;
-  color: #94A3B8;
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 0.72rem;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.terminal-quick-chips button:hover {
-  color: #FFFFFF;
-  border-color: #38BDF8;
-}
-
-.terminal-last-scanned-card {
-  background: #0F172A;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
-}
-
-.terminal-pill-ok {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ADE80;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.7rem;
   font-weight: 700;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
-.terminal-prod-name {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin: 4px 0 2px 0;
+.btn-scanner-submit:hover {
+  background: linear-gradient(135deg, #0047BA, #003380);
+  transform: translateY(-1px);
 }
 
-.terminal-prod-meta {
-  font-size: 0.74rem;
-  color: #94A3B8;
-  margin-bottom: 8px;
+.btn-scanner-submit:active {
+  transform: scale(0.97);
 }
 
-.terminal-stock-display {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  background: #020617;
-  padding: 8px 12px;
-  border-radius: 8px;
+/* ==========================================================================
+   SISTEMA RESPONSIVO AUTOMÁTICO (TABLET & MOBILE)
+   Mantiene el diseño corporativo limpio de Marathon en todas las pantallas
+   ========================================================================== */
+@media (max-width: 992px) {
+  .app-header {
+    height: auto;
+    padding: 10px 0 6px 0;
+  }
+  
+  .header-container {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 0 16px;
+  }
+
+  .brand-box {
+    order: 1;
+  }
+
+  .header-user-controls {
+    order: 2;
+    margin-left: auto;
+    gap: 6px;
+  }
+
+  .header-nav {
+    order: 3;
+    width: 100%;
+    height: auto;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding: 6px 0 4px 0;
+    border-top: 1px solid var(--border-light);
+    scrollbar-width: none;
+  }
+
+  .header-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tab-btn {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .nav-tab-btn:hover {
+    color: var(--text-main);
+    background: #F1F5F9;
+  }
+
+  .nav-tab-btn.active {
+    background: var(--brand-blue);
+    color: #FFFFFF;
+    border-color: var(--brand-blue);
+    box-shadow: 0 2px 6px rgba(0, 82, 204, 0.25);
+  }
+
+  .nav-tab-btn.active .nav-alert-badge {
+    background: #FFFFFF;
+    color: var(--brand-red);
+  }
+
+  .two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-wrapper {
+    padding: 12px 10px 50px 10px;
+  }
+
+  .page-title {
+    font-size: 1.22rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .white-card {
+    padding: 16px 14px;
+  }
+
+  /* Conteo Escáner en Smartphone */
+  .barcode-input-container {
+    padding: 6px 10px;
+  }
+
+  .barcode-text-input {
+    font-size: 1.05rem;
+    height: 40px;
+  }
+
+  .btn-scanner-submit {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  .quick-inc-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .quick-btn {
+    padding: 11px 4px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-align: center;
+    border-radius: 8px;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #btn-scanner-ajuste-manual {
+    font-size: 0.72rem;
+    line-height: 1.15;
+  }
+
+  .chip-demo-scan {
+    padding: 6px 10px;
+    font-size: 0.73rem;
+  }
+
+  /* Tarjeta Último Producto Leído */
+  .product-display-header {
+    gap: 10px;
+  }
+
+  .product-icon-box {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .product-name-lg {
+    font-size: 0.98rem;
+  }
+
+  .product-sku-code {
+    font-size: 0.75rem;
+  }
+
+  .product-loc-link {
+    font-size: 0.75rem;
+  }
+
+  .stock-stats-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .stat-metric-box {
+    padding: 6px 8px;
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+  }
+
+  .stat-metric-label {
+    font-size: 0.65rem;
+  }
+
+  .stat-metric-val {
+    font-size: 1.05rem;
+  }
+
+  /* Auditoría y tablas */
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Encabezado */
+  .brand-sub {
+    display: none;
+  }
+
+  .live-status-pill {
+    padding: 4px 7px;
+    font-size: 0.68rem;
+  }
+
+  .btn-subtle-reseed {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .user-role {
+    display: none;
+  }
+
+  /* Modales */
+  .modal-dialog,
+  .modal-dialog-crud {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 12px auto !important;
+    max-height: 90vh;
+  }
 }
 
 /* Acciones CRUD Usuarios */
