@@ -79,16 +79,16 @@
 
       <!-- Divisor -->
       <div class="login-divider">
-        <span>O ACCEDE CON CUENTAS DEMOSTRATIVAS PRECONFIGURADAS</span>
+        <span>SELECCIÓN RÁPIDA DE PERFIL OPERATIVO</span>
       </div>
 
-      <!-- Cuentas Rápidas Demo para Evaluación del Docente/Cliente -->
+      <!-- Cuentas Rápidas Corporativas para Demostración -->
       <div class="login-quick-roles">
         <div class="quick-role-card" onclick="loginRapidoDemo('operario', 'operario123')">
           <div class="quick-role-avatar" style="background: #0284C7;">JT</div>
           <div class="quick-role-info">
             <div class="quick-role-name">Jose Armando Tunqui</div>
-            <div class="quick-role-meta">ROLE_OPERARIO • Conteo Escáner y Pre-Venta</div>
+            <div class="quick-role-meta">ROLE_OPERARIO • Operario de Piso & Almacén</div>
           </div>
           <span class="quick-role-badge badge-operario">Operario</span>
         </div>
@@ -97,7 +97,7 @@
           <div class="quick-role-avatar" style="background: #16A34A;">JC</div>
           <div class="quick-role-info">
             <div class="quick-role-name">Joseph Aaron Churampi</div>
-            <div class="quick-role-meta">ROLE_AUDITOR • Conciliación, Excel POI y Actas PDF</div>
+            <div class="quick-role-meta">ROLE_AUDITOR • Auditor de Inventario & Conciliación SAP</div>
           </div>
           <span class="quick-role-badge badge-auditor">Auditor</span>
         </div>
@@ -106,16 +106,16 @@
           <div class="quick-role-avatar" style="background: #DC2626;">AC</div>
           <div class="quick-role-info">
             <div class="quick-role-name">Anita Condo López</div>
-            <div class="quick-role-meta">ROLE_SUPERVISOR • Aprobación de Mermas y Ajustes SAP</div>
+            <div class="quick-role-meta">ROLE_SUPERVISOR • Jefa de Tienda / Gerencia Retail</div>
           </div>
-          <span class="quick-role-badge badge-supervisor">Supervisora</span>
+          <span class="quick-role-badge badge-supervisor">Jefatura</span>
         </div>
       </div>
 
       <!-- Footer del Portal de Login -->
       <div class="login-card-footer">
-        <span>Caso de Estudio: Marathon Sports Sede Atocongo • UTP 2026</span>
-        <span>Curso Integrador I: Sistemas - Software</span>
+        <span>Marathon Sports Retail Platform © 2026 • Plataforma de Auditoría de Inventarios</span>
+        <span>Conectividad ERP SAP MB52 • Spring Security 6 & OpenPDF Enterprise</span>
       </div>
 
     </div>
@@ -136,7 +136,7 @@
         </div>
       </div>
 
-      <!-- Navegación Central (5 Prototipos Validados) -->
+      <!-- Navegación Central (5 Módulos Operativos) -->
       <nav class="header-nav">
         <button class="nav-tab-btn" data-target="view-escaner" id="tab-btn-escaner">
           Conteo Escáner
@@ -153,15 +153,16 @@
         <button class="nav-tab-btn" data-target="view-configuracion" id="tab-btn-configuracion">
           Configuración
         </button>
-        <a href="modelos-datos.html" class="nav-tab-btn" id="tab-btn-modelos" target="_blank" title="Ver Diagramas de Modelos de Datos (Conceptual, Lógico y Físico)" style="color: var(--brand-red); font-weight: 600;">
-          <i class="bi bi-diagram-3-fill"></i> Modelos de Datos
-        </a>
       </nav>
 
       <!-- Controles de Estado, Reset y Perfil de Usuario -->
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button id="btn-reseed-demo" class="btn-subtle-reseed" onclick="reiniciarDatosDemo()" title="Restaurar stock y conteos a los valores iniciales de prueba">
-          <i class="bi bi-arrow-counterclockwise"></i> Reset Demo
+        <span class="live-status-pill" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 20px; font-size: 0.74rem; font-weight: 700; color: #10B981;">
+          <i class="bi bi-circle-fill" style="font-size: 7px;"></i> SAP MB52 Online
+        </span>
+
+        <button id="btn-reseed-demo" class="btn-subtle-reseed" onclick="reiniciarDatosDemo()" title="Restablecer base de datos inicial para demostración" style="display: inline-flex; align-items: center; gap: 5px;">
+          <i class="bi bi-arrow-repeat"></i> Restaurar Datos
         </button>
 
         <!-- Perfil de Usuario con Spring Security -->
@@ -556,13 +557,57 @@
           </button>
         </div>
       </div>
+
+      <!-- Gestión de Usuarios y Control de Acceso RBAC (Exclusivo ROLE_SUPERVISOR) -->
+      <div class="white-card" style="margin-top: 24px;" id="card-gestion-usuarios">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 class="card-title-lg" style="margin-bottom: 0;">
+                <i class="bi bi-people-fill" style="color: var(--brand-red);"></i> Gestión de Usuarios y Control de Acceso (RBAC)
+              </h3>
+              <span class="pill-badge pill-outline-danger" id="badge-permiso-supervisor">SOLO JEFATURA / SUPERVISOR</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Administración de colaboradores autorizados para auditar o escanear en Marathon Sports Sede Atocongo.
+            </p>
+          </div>
+
+          <button type="button" class="btn-primary-blue" id="btn-abrir-nuevo-usuario" onclick="abrirModalUsuario()" style="padding: 8px 16px; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-person-plus-fill"></i> + Registrar Nuevo Usuario
+          </button>
+        </div>
+
+        <!-- Alerta de permisos si no es supervisor -->
+        <div id="alerta-permiso-usuario" style="display: none; padding: 10px 14px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 8px; font-size: 0.82rem; color: #991B1B; margin-bottom: 14px;">
+          <i class="bi bi-shield-lock-fill"></i> <strong>Acceso restringido:</strong> Debe iniciar sesión con rol <code>ROLE_SUPERVISOR</code> (Jefa de Tienda) para registrar, modificar o eliminar usuarios.
+        </div>
+
+        <div class="audit-table-wrap">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Colaborador</th>
+                <th>Usuario (Login)</th>
+                <th>Rol Asignado</th>
+                <th>Sede Marathon</th>
+                <th>Código / Matrícula</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-table-body">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ====================================================================
          VISTA 4: CONTEO ESCÁNER (Captura Rápida de Conteo Físico)
          ==================================================================== -->
     <section id="view-escaner" class="tab-content-view">
-      <div class="page-header-row">
+      <div class="page-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
         <div class="page-title-box">
           <div class="page-title-line">
             <h1 class="page-title">Captura Rápida de Conteo Físico</h1>
@@ -570,9 +615,93 @@
           </div>
           <p class="page-subtitle">Registro directo desde terminales RF / Escáneres de mano en pasillos y anaqueles</p>
         </div>
+
+        <!-- Botón para alternar a Modo Terminal Móvil -->
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-subtle-reseed" onclick="toggleModoTerminalMovil()" id="btn-toggle-terminal-movil" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 700; color: #0284C7; border-color: #38BDF8; background: #F0F9FF; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-phone-fill"></i> Vista Terminal Móvil (PDA / Smartphone)
+          </button>
+        </div>
       </div>
 
-      <div class="two-col-grid">
+      <!-- CONTENEDOR VISTA MÓVIL DEDICADA (Simulación Terminal Industrial Zebra / Honeywell) -->
+      <div id="scanner-mobile-terminal-wrap" class="scanner-mobile-terminal" style="display: none;">
+        <div class="mobile-terminal-bezel">
+          <!-- Barra superior del terminal PDA -->
+          <div class="terminal-status-bar">
+            <span><i class="bi bi-broadcast"></i> Marathon RF • Pasillo A</span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span><i class="bi bi-volume-up-fill" id="terminal-audio-icon"></i> Beep ON</span>
+              <span><i class="bi bi-wifi"></i> 5G</span>
+              <span><i class="bi bi-battery-charging"></i> 98%</span>
+            </div>
+          </div>
+
+          <!-- Lente láser y viewfinder de código de barras -->
+          <div class="terminal-laser-viewfinder">
+            <div class="laser-scanner-line"></div>
+            <div class="laser-corners">
+              <span class="corner tl"></span>
+              <span class="corner tr"></span>
+              <span class="corner bl"></span>
+              <span class="corner br"></span>
+            </div>
+            <div class="laser-instruction">
+              <i class="bi bi-upc-scan" style="font-size: 1.8rem; color: #38BDF8;"></i>
+              <div>Apunta el lector o ingresa el código</div>
+            </div>
+          </div>
+
+          <!-- Input táctil gigante para el código EAN -->
+          <div class="terminal-input-wrap">
+            <input type="text" id="mobile-scanner-barcode-input" class="terminal-barcode-input" placeholder="790123456712..." value="790123456712" autocomplete="off" />
+            <button type="button" class="btn-terminal-trigger" onclick="ejecutarEscaneoMovil()" title="Disparar lectura"><i class="bi bi-lightning-charge-fill"></i> SCAN</button>
+          </div>
+
+          <!-- Botonera numérica y táctil de conteo rápido para guantes -->
+          <div class="terminal-keypad-grid">
+            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(1)">+1 Unidad</button>
+            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(5)">+5 Unidades</button>
+            <button type="button" class="btn-terminal-key" onclick="incrementarConteoMovil(10)">+10 Pack</button>
+          </div>
+
+          <!-- Atajos rápidos táctiles de productos top -->
+          <div class="terminal-quick-chips">
+            <button type="button" onclick="setMobileScanCode('790123456712')">Nike Air Max (42)</button>
+            <button type="button" onclick="setMobileScanCode('7751234001015')">Nike Vapor 15 (41)</button>
+            <button type="button" onclick="setMobileScanCode('7751234002012')">Camiseta Perú (M)</button>
+          </div>
+
+          <!-- Tarjeta de confirmación táctil del último producto escaneado -->
+          <div class="terminal-last-scanned-card" id="mobile-last-scanned-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="terminal-pill-ok"><i class="bi bi-check-circle-fill"></i> Conteo Registrado</span>
+              <span style="font-size: 0.72rem; color: #94A3B8;" id="mobile-last-time">14:45:00</span>
+            </div>
+            <div class="terminal-prod-name" id="mobile-last-name">Zapatillas Nike Air Max Excee Running</div>
+            <div class="terminal-prod-meta" id="mobile-last-meta">SKU: CAL-NIK-002 • Talla: 42 • Blanco / Azul</div>
+            <div class="terminal-stock-display">
+              <div>
+                <div style="font-size: 0.7rem; color: #94A3B8;">Ubicación:</div>
+                <div style="font-weight: 700; color: #F1F5F9; font-size: 0.82rem;" id="mobile-last-loc">Pasillo A - Estante 03</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 0.7rem; color: #94A3B8;">Conteo Físico:</div>
+                <div style="font-size: 1.4rem; font-weight: 900; color: #38BDF8;" id="mobile-last-qty">11 u.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 10px;">
+            <button type="button" class="btn-subtle-gray" onclick="toggleModoTerminalMovil()" style="font-size: 0.75rem; color: #94A3B8;">
+              <i class="bi bi-display"></i> Volver a Vista de Escritorio
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA ESTÁNDAR ESCRITORIO -->
+      <div class="two-col-grid" id="scanner-desktop-view-wrap">
         <!-- Columna Izquierda: Entrada y Último Producto Leído -->
         <div style="display: flex; flex-direction: column; gap: 18px;">
           <!-- Entrada Directa -->
@@ -598,7 +727,7 @@
 
             <!-- Chips de Prueba Rápida con 1 Clic -->
             <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-              <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 600;">SKUs Demo:</span>
+              <span style="font-size: 0.73rem; color: var(--text-muted); font-weight: 600;">Atajos de Escaneo:</span>
               <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('790123456712')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Air Max (790123...)</button>
               <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234001015')" style="padding: 3px 8px; font-size: 0.72rem;">Nike Vapor 15 (775123...)</button>
               <button type="button" class="btn-subtle-gray chip-demo-scan" onclick="setScannerCode('7751234002012')" style="padding: 3px 8px; font-size: 0.72rem;">Camiseta Perú (775123...)</button>
@@ -1000,6 +1129,69 @@
       <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
         <button class="btn-primary-blue" onclick="cerrarModalDetalleAuditoria()" style="padding: 8px 18px;">Entendido</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL CRUD DE USUARIOS (CREAR / EDITAR) - EXCLUSIVO SUPERVISOR -->
+  <div id="modal-crud-usuario" class="security-modal-overlay" onclick="if(event.target===this)cerrarModalUsuario()">
+    <div class="security-modal-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="background: #FEE2E2; color: #DC2626; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+            <i class="bi bi-person-gear"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main);" id="modal-usuario-titulo">Registrar Colaborador</h3>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">Administración RBAC • Marathon Sports Atocongo</span>
+          </div>
+        </div>
+        <button onclick="cerrarModalUsuario()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      </div>
+
+      <form id="form-crud-usuario" onsubmit="guardarUsuario(event)">
+        <input type="hidden" id="crud-user-id" value="" />
+
+        <div class="form-group-custom" style="margin-bottom: 12px;">
+          <label class="form-label-custom" for="crud-user-nombre">Nombre y Apellidos</label>
+          <input type="text" id="crud-user-nombre" class="search-input-field" placeholder="ej. Carlos Eduardo Mendoza Ruiz" required style="width: 100%;" />
+        </div>
+
+        <div class="form-row-two-col" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label class="form-label-custom" for="crud-user-login">Usuario Corporativo</label>
+            <input type="text" id="crud-user-login" class="search-input-field" placeholder="ej. cmendoza" required style="width: 100%;" />
+          </div>
+          <div>
+            <label class="form-label-custom" for="crud-user-clave">Contraseña (BCrypt)</label>
+            <input type="password" id="crud-user-clave" class="search-input-field" placeholder="••••••••" style="width: 100%;" />
+          </div>
+        </div>
+
+        <div class="form-row-two-col" style="margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label class="form-label-custom" for="crud-user-rol">Rol en el Sistema (RBAC)</label>
+            <select id="crud-user-rol" class="select-custom" required style="width: 100%;">
+              <option value="ROLE_OPERARIO">ROLE_OPERARIO (Escáner & Pre-Venta)</option>
+              <option value="ROLE_AUDITOR">ROLE_AUDITOR (Conciliación & Mermas)</option>
+              <option value="ROLE_SUPERVISOR">ROLE_SUPERVISOR (Jefa de Tienda / Aprobación)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label-custom" for="crud-user-codigo">Código / Matrícula</label>
+            <input type="text" id="crud-user-codigo" class="search-input-field" placeholder="ej. U24100123" style="width: 100%;" />
+          </div>
+        </div>
+
+        <div class="form-group-custom" style="margin-bottom: 18px;">
+          <label class="form-label-custom" for="crud-user-sede">Sede Marathon Asignada</label>
+          <input type="text" id="crud-user-sede" class="search-input-field" value="Marathon Atocongo" required style="width: 100%;" />
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn-subtle-gray" onclick="cerrarModalUsuario()" style="padding: 8px 16px;">Cancelar</button>
+          <button type="submit" class="btn-primary-blue" id="btn-submit-usuario" style="padding: 8px 18px;">Guardar Usuario</button>
+        </div>
+      </form>
     </div>
   </div>
 

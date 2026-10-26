@@ -77,7 +77,7 @@ public class SecurityConfig {
                 // Reglas de autorización de solicitudes HTTP
                 .authorizeHttpRequests(auth -> auth
                         // Recursos estáticos del frontend
-                        .requestMatchers("/", "/index.html", "/modelos-datos.html", "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
                         // Documentación Swagger / OpenAPI
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         // Consola H2
@@ -89,7 +89,7 @@ public class SecurityConfig {
                         // Endpoints operativos de inventario
                         .requestMatchers("/api/v1/productos/**", "/api/v1/preventa/**", "/api/v1/ciclos/**",
                                          "/api/v1/trazabilidad/**", "/api/v1/inventario/**", "/api/v1/conteo/**",
-                                         "/api/v1/auditorias/**").permitAll()
+                                         "/api/v1/auditorias/**", "/api/v1/usuarios/**").permitAll()
                         // Cualquier otra petición requiere autenticación
                         .anyRequest().authenticated()
                 )

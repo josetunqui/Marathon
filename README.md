@@ -44,11 +44,11 @@ Métricas Clave:
 
 ```
 Integrador/
-├── index.html                   # SPA Frontend con las 5 vistas de negocio
-├── modelos-datos.html           # Documentación interactiva de modelos conceptual y relacional
-├── database_marathon_atocongo.sql # Script DDL + DML completo para MySQL
+├── index.html                   # SPA Frontend con las 5 vistas de negocio corporativo
+├── database_marathon_atocongo.sql # Script DDL + DML completo para MySQL 8.0
+├── database_marathon_oracle_sqlserver.sql # DDL de producción para Oracle 19c & SQL Server 2022
 ├── README.md                    # Documentación principal del repositorio
-├── DOCUMENTACION_ENTREGA.md     # Memoria técnica académica para evaluación
+├── DOCUMENTACION_ENTREGA.md     # Memoria técnica de ingeniería de software
 ├── css/
 │   └── styles.css               # Sistema de diseño retail, dark/light, glassmorphism y print
 ├── js/

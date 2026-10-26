@@ -30,11 +30,11 @@ echo [OK] Abriendo Sistema Web en su navegador predeterminado...
 start "" "%~dp0index.html"
 
 echo ===============================================================================
-echo  El sistema esta en ejecucion:
-echo  - Frontend Web: index.html
-echo  - API Backend: http://localhost:8080/api/v1
-echo  - Swagger UI: http://localhost:8080/swagger-ui/index.html
-echo  - Modelos de Datos: modelos-datos.html
+echo  Marathon Sports - Sistema de Conteo Ciclico Fraccionado de Inventario
+echo  - Plataforma Web: index.html
+echo  - API REST Backend: http://localhost:8080/api/v1
+echo  - Swagger UI / OpenAPI: http://localhost:8080/swagger-ui/index.html
+echo  - Estado: Listo para Demostracion Comercial
 echo ===============================================================================
 echo Para detener el sistema, cierre la ventana secundaria de Spring Boot.
 pause

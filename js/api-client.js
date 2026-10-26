@@ -520,6 +520,83 @@ class MarathonApiClient {
     return [];
   }
 
+  // --- 8. GESTIÓN CRUD DE USUARIOS (SUPERVISOR) ---
+  async getUsuarios() {
+    try {
+      const res = await fetch(`${this.baseUrl}/usuarios`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) return data;
+      }
+    } catch (e) {
+      console.warn('[API] Falló /usuarios, recurriendo a LocalStorage:', e);
+    }
+    let users = JSON.parse(localStorage.getItem('marathon_usuarios_crud') || 'null');
+    if (!users || users.length === 0) {
+      users = [
+        { id: 'user-01', nombre: 'Joseph Aaron Churampi Quispe', usuario: 'jchurampi', clave: 'marathon2026', rol: 'ROLE_AUDITOR', sede: 'Marathon Atocongo', codigo: 'U21212777' },
+        { id: 'user-02', nombre: 'Jose Armando Tunqui Puelles', usuario: 'jtunqui', clave: 'marathon2026', rol: 'ROLE_OPERARIO', sede: 'Marathon Atocongo', codigo: 'U23331844' },
+        { id: 'user-03', nombre: 'Anita Condo López', usuario: 'acondo', clave: 'admin123', rol: 'ROLE_SUPERVISOR', sede: 'Marathon Atocongo', codigo: 'DOC-01' }
+      ];
+      localStorage.setItem('marathon_usuarios_crud', JSON.stringify(users));
+    }
+    return users;
+  }
+
+  async createUsuario(usuario) {
+    try {
+      const res = await fetch(`${this.baseUrl}/usuarios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(usuario)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('[API] Falló POST /usuarios, guardando en local:', e);
+    }
+    const users = await this.getUsuarios();
+    if (!usuario.id) usuario.id = 'user-' + Date.now().toString().slice(-4);
+    users.push(usuario);
+    localStorage.setItem('marathon_usuarios_crud', JSON.stringify(users));
+    return usuario;
+  }
+
+  async updateUsuario(id, datos) {
+    try {
+      const res = await fetch(`${this.baseUrl}/usuarios/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn('[API] Falló PUT /usuarios, actualizando en local:', e);
+    }
+    const users = await this.getUsuarios();
+    const idx = users.findIndex(u => u.id === id);
+    if (idx !== -1) {
+      users[idx] = { ...users[idx], ...datos };
+      localStorage.setItem('marathon_usuarios_crud', JSON.stringify(users));
+      return users[idx];
+    }
+    return null;
+  }
+
+  async deleteUsuario(id) {
+    try {
+      const res = await fetch(`${this.baseUrl}/usuarios/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) return true;
+    } catch (e) {
+      console.warn('[API] Falló DELETE /usuarios, eliminando en local:', e);
+    }
+    let users = await this.getUsuarios();
+    users = users.filter(u => u.id !== id);
+    localStorage.setItem('marathon_usuarios_crud', JSON.stringify(users));
+    return true;
+  }
+
   // --- 8. RESTAURAR DATOS DEMO Y KPIS ---
   async reseedDemo() {
     try {

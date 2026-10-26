@@ -1185,12 +1185,13 @@ function initConfigurationView() {
 
 async function loadConfigurationData() {
   const config = await window.apiClient.getCycleConfig();
-  if (!config) return;
-
-  const select = document.getElementById('config-frecuencia-select');
-  if (select && config.frecuencia) {
-    select.value = config.frecuencia;
+  if (config) {
+    const select = document.getElementById('config-frecuencia-select');
+    if (select && config.frecuencia) {
+      select.value = config.frecuencia;
+    }
   }
+  await cargarUsuariosCRUD();
 }
 
 // ==========================================================================
@@ -1234,6 +1235,7 @@ async function autenticarComo(username, password) {
       showToast(`Autenticado en Spring Security como: ${res.rol}`);
       setTimeout(() => cerrarModalSeguridad(), 600);
       await loadAuditoriaData();
+      await cargarUsuariosCRUD();
     } else {
       showToast(`Error: ${res.mensaje}`);
     }
@@ -1347,6 +1349,7 @@ async function procesarLogin(e) {
 
       await loadAuditoriaData();
       await loadScannerData();
+      await cargarUsuariosCRUD();
     } else {
       if (alertBox) alertBox.style.display = 'flex';
       if (alertMsg) alertMsg.textContent = res.mensaje || 'Credenciales incorrectas en Spring Security.';
@@ -1512,6 +1515,266 @@ function cerrarModalSeguridad() {
   if (modal) modal.classList.remove('active');
 }
 
+// ==========================================================================
+// GESTIÓN CRUD DE USUARIOS (EXCLUSIVO ROLE_SUPERVISOR)
+// ==========================================================================
+let usuariosCrudCache = [];
+
+async function cargarUsuariosCRUD() {
+  const tbody = document.getElementById('usuarios-table-body');
+  if (!tbody) return;
+
+  const esSupervisor = usuarioActual && (usuarioActual.rol === 'SUPERVISOR' || usuarioActual.rol === 'ROLE_SUPERVISOR');
+  
+  const alerta = document.getElementById('alerta-permiso-usuario');
+  const btnNuevo = document.getElementById('btn-abrir-nuevo-usuario');
+  if (alerta) alerta.style.display = esSupervisor ? 'none' : 'block';
+  if (btnNuevo) {
+    btnNuevo.disabled = !esSupervisor;
+    btnNuevo.style.opacity = esSupervisor ? '1' : '0.5';
+    btnNuevo.style.cursor = esSupervisor ? 'pointer' : 'not-allowed';
+  }
+
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;"><i class="bi bi-arrow-repeat spin"></i> Cargando usuarios...</td></tr>';
+
+  try {
+    usuariosCrudCache = await window.apiClient.getUsuarios();
+  } catch (e) {
+    usuariosCrudCache = [];
+  }
+
+  if (!usuariosCrudCache || usuariosCrudCache.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">No se encontraron colaboradores registrados</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = usuariosCrudCache.map(u => {
+    const rolClean = (u.rol || '').replace('ROLE_', '');
+    const badgeStyle = rolClean === 'SUPERVISOR' 
+      ? 'background: #FEE2E2; color: #DC2626;' 
+      : (rolClean === 'AUDITOR' ? 'background: #DCFCE7; color: #16A34A;' : 'background: #E0F2FE; color: #0284C7;');
+    const avatarInitials = (u.nombre || 'U').split(' ').map(n => n[0]).slice(0, 2).join('');
+    
+    return `
+      <tr>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 30px; height: 30px; border-radius: 6px; background: #334155; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">
+              ${avatarInitials}
+            </div>
+            <div>
+              <strong style="color: var(--text-main); font-size: 0.84rem; display: block;">${u.nombre}</strong>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">${u.sede || 'Marathon Atocongo'}</span>
+            </div>
+          </div>
+        </td>
+        <td><code style="font-size: 0.82rem; color: var(--brand-blue);">${u.usuario}</code></td>
+        <td><span class="pill-badge" style="${badgeStyle}; font-size: 0.72rem; font-weight: 700;">${rolClean}</span></td>
+        <td style="font-size: 0.8rem; color: var(--text-secondary);">${u.sede || 'Marathon Atocongo'}</td>
+        <td style="font-size: 0.78rem; font-family: monospace; color: var(--text-muted);">${u.codigo || '—'}</td>
+        <td style="text-align: center; white-space: nowrap;">
+          <button type="button" class="btn-crud-edit" onclick="abrirModalUsuario('${u.id}')" ${!esSupervisor ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''} title="Modificar datos del usuario">
+            <i class="bi bi-pencil-fill"></i> Modificar
+          </button>
+          <button type="button" class="btn-crud-delete" onclick="eliminarUsuario('${u.id}')" ${!esSupervisor ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''} title="Eliminar usuario">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function abrirModalUsuario(id = null) {
+  const modal = document.getElementById('modal-crud-usuario');
+  if (!modal) return;
+
+  const esSupervisor = usuarioActual && (usuarioActual.rol === 'SUPERVISOR' || usuarioActual.rol === 'ROLE_SUPERVISOR');
+  if (!esSupervisor) {
+    showToast('Acceso denegado: Solo el Supervisor (Jefa de Tienda) puede gestionar usuarios.', 'bi-shield-slash-fill');
+    return;
+  }
+
+  const titulo = document.getElementById('modal-usuario-titulo');
+  const inputId = document.getElementById('crud-user-id');
+  const inputNombre = document.getElementById('crud-user-nombre');
+  const inputLogin = document.getElementById('crud-user-login');
+  const inputClave = document.getElementById('crud-user-clave');
+  const selectRol = document.getElementById('crud-user-rol');
+  const inputCodigo = document.getElementById('crud-user-codigo');
+  const inputSede = document.getElementById('crud-user-sede');
+
+  if (id) {
+    const user = usuariosCrudCache.find(u => u.id === id);
+    if (user) {
+      if (titulo) titulo.textContent = 'Modificar Colaborador';
+      if (inputId) inputId.value = user.id;
+      if (inputNombre) inputNombre.value = user.nombre;
+      if (inputLogin) {
+        inputLogin.value = user.usuario;
+        inputLogin.readOnly = true;
+      }
+      if (inputClave) {
+        inputClave.value = '';
+        inputClave.placeholder = 'Dejar vacío para mantener la actual';
+        inputClave.required = false;
+      }
+      if (selectRol) selectRol.value = user.rol.startsWith('ROLE_') ? user.rol : 'ROLE_' + user.rol;
+      if (inputCodigo) inputCodigo.value = user.codigo || '';
+      if (inputSede) inputSede.value = user.sede || 'Marathon Atocongo';
+    }
+  } else {
+    if (titulo) titulo.textContent = 'Registrar Colaborador';
+    if (inputId) inputId.value = '';
+    if (inputNombre) inputNombre.value = '';
+    if (inputLogin) {
+      inputLogin.value = '';
+      inputLogin.readOnly = false;
+    }
+    if (inputClave) {
+      inputClave.value = '';
+      inputClave.placeholder = '••••••••';
+      inputClave.required = true;
+    }
+    if (selectRol) selectRol.value = 'ROLE_OPERARIO';
+    if (inputCodigo) inputCodigo.value = 'U' + Math.floor(10000000 + Math.random() * 90000000);
+    if (inputSede) inputSede.value = 'Marathon Atocongo';
+  }
+
+  modal.classList.add('active');
+}
+
+function cerrarModalUsuario() {
+  const modal = document.getElementById('modal-crud-usuario');
+  if (modal) modal.classList.remove('active');
+}
+
+async function guardarUsuario(e) {
+  e.preventDefault();
+  const id = document.getElementById('crud-user-id').value;
+  const nombre = document.getElementById('crud-user-nombre').value.trim();
+  const login = document.getElementById('crud-user-login').value.trim();
+  const clave = document.getElementById('crud-user-clave').value.trim();
+  const rol = document.getElementById('crud-user-rol').value;
+  const codigo = document.getElementById('crud-user-codigo').value.trim();
+  const sede = document.getElementById('crud-user-sede').value.trim();
+
+  if (id) {
+    const datos = { nombre, rol, codigo, sede };
+    if (clave) datos.clave = clave;
+    await window.apiClient.updateUsuario(id, datos);
+    showToast(`Usuario ${login} actualizado exitosamente`, 'bi-check-circle-fill');
+  } else {
+    if (!clave) {
+      showToast('Por favor ingrese una contraseña para el nuevo usuario', 'bi-exclamation-triangle-fill');
+      return;
+    }
+    const nuevo = {
+      id: 'user-' + Date.now().toString().slice(-4),
+      nombre,
+      usuario: login,
+      clave,
+      rol,
+      codigo,
+      sede
+    };
+    await window.apiClient.createUsuario(nuevo);
+    showToast(`Nuevo usuario ${login} registrado en Spring Security`, 'bi-check-circle-fill');
+  }
+
+  cerrarModalUsuario();
+  await cargarUsuariosCRUD();
+}
+
+async function eliminarUsuario(id) {
+  const user = usuariosCrudCache.find(u => u.id === id);
+  const nombre = user ? user.nombre : 'este usuario';
+  if (!confirm(`¿Está seguro de eliminar a ${nombre} del sistema? Esta acción no se puede deshacer.`)) {
+    return;
+  }
+  await window.apiClient.deleteUsuario(id);
+  showToast('Colaborador eliminado del sistema', 'bi-trash-fill');
+  await cargarUsuariosCRUD();
+}
+
+// ==========================================================================
+// VISTA MÓVIL DEDICADA: TERMINAL INDUSTRIAL ESCÁNER (ZEBRA / HONEYWELL)
+// ==========================================================================
+let modoTerminalMovilActivo = false;
+
+function toggleModoTerminalMovil() {
+  modoTerminalMovilActivo = !modoTerminalMovilActivo;
+  const mobileWrap = document.getElementById('scanner-mobile-terminal-wrap');
+  const desktopWrap = document.getElementById('scanner-desktop-view-wrap');
+  const btnToggle = document.getElementById('btn-toggle-terminal-movil');
+
+  if (mobileWrap && desktopWrap) {
+    if (modoTerminalMovilActivo) {
+      mobileWrap.style.display = 'block';
+      desktopWrap.style.display = 'none';
+      if (btnToggle) btnToggle.innerHTML = '<i class="bi bi-display"></i> Vista Escritorio';
+      showToast('Modo Terminal Móvil Activo (PDA Industrial Zebra / Honeywell)', 'bi-phone-fill');
+      const mobileInput = document.getElementById('mobile-scanner-barcode-input');
+      if (mobileInput) mobileInput.focus();
+    } else {
+      mobileWrap.style.display = 'none';
+      desktopWrap.style.display = 'grid';
+      if (btnToggle) btnToggle.innerHTML = '<i class="bi bi-phone-fill"></i> Vista Terminal Móvil (PDA)';
+    }
+  }
+}
+
+async function setMobileScanCode(code) {
+  const input = document.getElementById('mobile-scanner-barcode-input');
+  if (input) input.value = code;
+  await ejecutarEscaneoMovil();
+}
+
+async function ejecutarEscaneoMovil() {
+  const input = document.getElementById('mobile-scanner-barcode-input');
+  const barcode = (input ? input.value : '').trim();
+  if (!barcode) return;
+
+  if (navigator.vibrate) {
+    navigator.vibrate(60);
+  }
+
+  await executeScan(barcode, 1);
+  actualizarTarjetaTerminalMovil(barcode);
+}
+
+async function incrementarConteoMovil(qty) {
+  const input = document.getElementById('mobile-scanner-barcode-input');
+  const barcode = (input ? input.value : '790123456712').trim();
+  if (navigator.vibrate) navigator.vibrate(80);
+  await executeScan(barcode, qty);
+  actualizarTarjetaTerminalMovil(barcode);
+}
+
+function actualizarTarjetaTerminalMovil(barcode) {
+  const nameEl = document.getElementById('last-read-name');
+  const metaEl = document.getElementById('last-read-meta');
+  const locEl = document.getElementById('last-read-location');
+  const totalEl = document.getElementById('last-read-qty-total');
+  const timeEl = document.getElementById('last-read-time');
+
+  if (nameEl && document.getElementById('mobile-last-name')) {
+    document.getElementById('mobile-last-name').textContent = nameEl.textContent;
+  }
+  if (metaEl && document.getElementById('mobile-last-meta')) {
+    document.getElementById('mobile-last-meta').textContent = metaEl.textContent;
+  }
+  if (locEl && document.getElementById('mobile-last-loc')) {
+    document.getElementById('mobile-last-loc').textContent = locEl.textContent.replace('Ubicación física: ', '');
+  }
+  if (totalEl && document.getElementById('mobile-last-qty')) {
+    document.getElementById('mobile-last-qty').textContent = totalEl.textContent;
+  }
+  if (timeEl && document.getElementById('mobile-last-time')) {
+    document.getElementById('mobile-last-time').textContent = timeEl.textContent;
+  }
+}
+
 // Exportación global de funciones para el DOM
 window.abrirModalSeguridad = abrirModalSeguridad;
 window.cerrarModalSeguridad = cerrarModalSeguridad;
@@ -1549,6 +1812,17 @@ window.limpiarBusquedaTrazabilidad = limpiarBusquedaTrazabilidad;
 window.seleccionarSkuTrazabilidad = seleccionarSkuTrazabilidad;
 window.cargarAlertasDiscrepancias = cargarAlertasDiscrepancias;
 window.iniciarAuditoriaRapida = iniciarAuditoriaRapida;
+
+// Nuevas funciones CRUD y Terminal Móvil
+window.cargarUsuariosCRUD = cargarUsuariosCRUD;
+window.abrirModalUsuario = abrirModalUsuario;
+window.cerrarModalUsuario = cerrarModalUsuario;
+window.guardarUsuario = guardarUsuario;
+window.eliminarUsuario = eliminarUsuario;
+window.toggleModoTerminalMovil = toggleModoTerminalMovil;
+window.setMobileScanCode = setMobileScanCode;
+window.ejecutarEscaneoMovil = ejecutarEscaneoMovil;
+window.incrementarConteoMovil = incrementarConteoMovil;
 
 
 
